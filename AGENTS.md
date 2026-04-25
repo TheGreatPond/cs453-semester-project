@@ -146,3 +146,59 @@ Issue details are mirrored locally in:
 docs/issues/
 
 When implementing features, prefer these files for context.
+
+## Available Scripts
+
+The repository includes helper scripts in the `scripts/` directory.
+
+Common scripts:
+
+- scripts/start-issue.sh
+    - Creates a branch for a GitHub issue and displays the issue
+
+- scripts/pull-issue.sh
+    - Pulls a GitHub issue into docs/issues/ as a markdown file
+
+- scripts/finish-issue.sh
+    - Commits changes and creates a pull request
+  
+- scripts/review-pr.sh
+    - Reviews a pull request
+When working on issues, prefer using these scripts instead of manually performing the steps.
+
+## Issue Workflow
+
+Preferred workflow:
+
+1. Run scripts/start-issue.sh <issue-id>
+2. Use scripts/pull-issue.sh <issue-id> to get local context
+3. Implement the feature
+4. Run scripts/finish-issue.sh <issue-id> to create PR
+
+Follow this workflow unless instructed otherwise.
+
+## Teaching Behavior
+
+- Prefer clarity over cleverness
+- Explain reasoning when useful
+- Avoid complex abstractions
+
+## Review Behavior
+
+- Focus on correctness and clarity
+- Identify edge cases
+- Suggest improvements, not rewrites
+
+## Implementation Behavior
+
+- Implement minimal working solution first
+- Avoid over-engineering
+- Follow current milestone constraints
+
+## Planning Behavior
+
+When given a feature:
+
+- Break into steps
+- Suggest order of implementation
+- Prefer incremental changes
