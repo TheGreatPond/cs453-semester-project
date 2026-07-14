@@ -96,12 +96,12 @@ export function createApp() {
   });
 
   // DONE: Return one item by ID.
-  app.get("/api/items/:id", async (req, res) => {
+  app.get("/api/tasks/:id", async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
-        SELECT id, name, quantity, restock_quantity
-        FROM items
+        SELECT id, title, description, status, created_at, updated_at
+        FROM tasks
         WHERE ID = $1
       `,
       [id]);
@@ -119,46 +119,8 @@ export function createApp() {
     }
   });
 
-  app.get("/api/items/:id/restock", async (req, res) => {
-    const id = req.params.id;
-    try {
-      const temp_result = await pool.query(`
-        SELECT quantity, restock_quantity
-        FROM items
-        WHERE ID = $1
-      `,
-      [id]);
-      if (temp_result.rows.length === 0){
-        res.status(404).json({ error: "Resource requested not found" });
-      } else{
-        const new_quantity = temp_result.rows[0].restock_quantity + temp_result.rows[0].quantity;
-        const middle_result =  await pool.query(
-          `
-          UPDATE items
-          SET quantity = $1
-          WHERE id = $2
-          `,
-          [new_quantity, id]
-        );
-        const result = await pool.query(`
-        SELECT id, name, quantity, restock_quantity
-        FROM items
-        WHERE ID = $1
-        `,
-        [id])
-        res.json({ items: result.rows });
-      }
-    } catch (error) {
-      console.error("Failed to load items:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load items."
-      });
-    }
-  });
-
   // DONE: Replace one item by ID.
-  app.put("/api/items/:id", async (req, res) => {
+  app.put("/api/tasks/:id", async (req, res) => {
     const name = req.body?.name?.trim();
     const quantity = Number(req.body?.quantity);
     const restock_quantity = Number(req.body?.restock_quantity);
@@ -213,7 +175,7 @@ export function createApp() {
 
 
   // DONE: Partially update one item by ID.
-  app.patch("/api/items/:id", async (req, res) => {
+  app.patch("/api/tasks/:id", async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -289,14 +251,14 @@ export function createApp() {
     }
   });
 
-  // DONE: Delete one item by ID.
-  app.delete("/api/items/:id", async (req, res) => {
+  // DONE: Delete one task by ID.
+  app.delete("/api/tasks/:id", async (req, res) => {
     const id = req.params.id;
 
     try {
       const result = await pool.query(`
-        SELECT id, name, quantity, restock_quantity
-        FROM items
+        SELECT id, title, description, status, created_at, updated_at
+        FROM tasks
         WHERE ID = $1
       `,
       [id]);
@@ -305,24 +267,24 @@ export function createApp() {
       } else{
           try {
             const result = await pool.query(`
-              DELETE FROM items
+              DELETE FROM tasks
               WHERE ID = $1
             `,
             [id]);
-            res.status(204).json({ result: "Item successfully deleted" });
+            res.status(204).json({ result: "Task successfully deleted" });
           } catch (error) {
-            console.error("Failed to load items:", error);
+            console.error("Failed to load task:", error);
             res.status(500).json({
               error: "Internal Server Error",
-              message: "Failed to load items."
+              message: "Failed to load task."
             });
           }
       }
     } catch (error) {
-      console.error("Failed to load items:", error);
+      console.error("Failed to load task:", error);
       res.status(500).json({
         error: "Internal Server Error",
-        message: "Failed to load items."
+        message: "Failed to load task."
       });
     }
 
