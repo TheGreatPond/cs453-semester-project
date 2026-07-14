@@ -211,6 +211,7 @@ components:
       required:
         - title
         - status
+        - description
       properties:
         title:
           type: string
@@ -218,6 +219,9 @@ components:
         status:
           type: string
           example: "todo"
+        description:
+          type: string
+          example: "tell me about yourself"
   # DONE: Define an ErrorResponse schema with an error message.
     ErrorNotFound:
       type: object
