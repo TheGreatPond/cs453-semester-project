@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: CS453 Semeter Project API
+  version: 1.0.0
+  description: First Swagger doc, describing basic CRUD operations on a list of tasks
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /health:
+    get:
+      summary: "Health check test"
+      responses:
+        "200":
+          description: "Server is running"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    type: "string"
+                    example: "ok"
+  /api/tasks:
+    get:
+      summary: Get list of tasks
+      responses:
+        "200":
+          description: List of tasks returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: [{"id":1,"name":"keyboard","quantity":10,"restock_quantity":15},{"id":2,"name":"mouse","quantity":5,"restock_quantity":10}]
+    post:
+      summary: "Adds new task to list"
+      requestBody:
+        description: "needs a title and status of task"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "201":
+          description: "Null response"
+        "400":
+          description: "Invalid request, task not created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
+
+  /api/tasks/{id}:
+    get:
+      summary: Get task from list
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the task to get
+      responses:
+        "200":
+          description: Single task returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: "Resource requested not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    put:
+      summary: Update one task in list
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the task to update
+      requestBody:
+        description: "needs title and status of task"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "200":
+          description: Single task returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: "Resource requested not found and could not be altered"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+        "400":
+          description: "Invalid request, task not updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
+    patch:
+      summary: Update part of one task in list
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the task to update
+      requestBody:
+        description: "needs a combination of any of the following: title or status"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+
+      responses:
+        "200":
+          description: Single task returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: "Resource requested not found and could not be altered"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+        "400":
+          description: "Invalid request, task not updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
+    delete:
+      summary: Delete task from db
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the task to delete
+      responses:
+        "204":
+          description: "Null response"
+        "404":
+          description: "Resource requested not found and therefore not deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+  #
+  # Remember:
+  # - Express routes use :id, such as /tasks/:id.
+  # - OpenAPI paths use {id}, such as /tasks/{id}.
+  #
+  # You may define schemas under components/schemas if you want to avoid
+  # repeating the same object structure many times.
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - description
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+          example: "test-title"
+        status:
+          type: string
+          example: "todo"
+        description:
+          type: string
+          example: "tell me about yourself"
+        created_at:
+          type: string
+          example: "creation_time"
+        updated_at:
+          type: string
+          example: "updated_time"
+    TaskInput:
+      type: object
+      required:
+        - title
+        - status
+      properties:
+        title:
+          type: string
+          example: "test-title"
+        status:
+          type: string
+          example: "todo"
+  # DONE: Define an ErrorResponse schema with an error message.
+    ErrorNotFound:
+      type: object
+      properties:
+        Error:
+          type: string
+          example: "The resource you were looking for could not be found, please correct your path and try again"
+    ErrorInvalidBody:
+      type: object
+      properties:
+        Error:
+          type: string
+          example: "Invalid request body, please adjust your request and try again."

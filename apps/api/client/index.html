@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 5 Client</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <section class="panel">
+        <h1>Lab 5 Inventory Client</h1>
+        <p>
+          This starter client can load items and create a new item. Extend it
+          as you add more API routes.
+        </p>
+
+        <form id="post-put-patch-item-form">
+          <label>
+            ID
+            <input id="item-id" name="id" type="number" min="0">
+          </label>
+
+          <label>
+            Name
+            <input id="item-name" name="name" type="text">
+          </label>
+
+          <label>
+            Quantity
+            <input id="item-quantity" name="quantity" type="number" min="0">
+          </label>
+
+          <label>
+            Restock Quantity
+            <input id="item-restock_quantity" name="restock_quantity" type="number" min="0">
+          </label>
+
+          <p>
+            The below button uses post if both name and quantity are filled in, 
+            put if all three values are filled in, and patch if ID and only one other box is filled.
+          </p>
+
+          <button type="submit">POST/PUT/PATCH Item</button>
+
+          <p>
+            The below button prints all items in the db to the page
+          </p>
+
+          <div class="actions">
+            <button id="load-items" type="button">Load all Items</button>
+          </div>
+
+          <p>
+            The below button deletes the item designated by the ID provided
+          </p>
+
+          <div class="actions">
+            <button id="delete-item" type="button">Delete Item By ID</button>
+          </div>
+
+          <p>
+            The below button prints the item matching the provided ID to the page
+          </p>
+
+          <div class="actions">
+            <button id="search-by-id" type="button">Search By ID</button>
+          </div>
+          <p>
+            The below button restocks the item by restock amount recorded in the item entry
+          </p>
+
+          <div class="actions">
+            <button id="restockButton" type="button">Restock</button>
+          </div>
+
+        </form>
+
+
+        <p id="status" class="status">Ready.</p>
+
+        <ul id="items" class="items"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
