@@ -121,22 +121,15 @@ export function createApp() {
 
   // DONE: Replace one item by ID.
   app.put("/api/tasks/:id", async (req, res) => {
-    const name = req.body?.name?.trim();
-    const quantity = Number(req.body?.quantity);
-    const restock_quantity = Number(req.body?.restock_quantity);
+    const title = req.body?.title?.trim();
+    const description = req.body?.description?.trim();
+    const status = req.body?.status?.trim();
     const id = req.params.id;
-
-    if (!name || !Number.isInteger(quantity) || quantity < 0) {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "A name and non-negative integer quantity are required."
-      });
-    }
 
     try {
       const result = await pool.query(`
-        SELECT id, name, quantity, restock_quantity
-        FROM items
+        SELECT id, title, description, status, created_at, updated_at
+        FROM tasks
         WHERE ID = $1
       `,
       [id]);
@@ -146,27 +139,27 @@ export function createApp() {
           try {
             const result =  await pool.query(
               `
-              UPDATE items
-              SET name = $1, quantity = $2, restock_quantity = $3
+              UPDATE tasks
+              SET title = $1, description = $2, status = $3, updated_at = current_timestamp
               WHERE id = $4
               `,
-              [name, quantity, restock_quantity,  id]
+              [title, description, status, id]
             );
 
             res.status(201).json({ item: result.rows[0] });
           } catch (error) {
-            console.error("Failed to add item:", error);
+            console.error("Failed to replace task:", error);
             res.status(500).json({
               error: "Internal Server Error",
-              message: "Failed to add item."
+              message: "Failed to replace task."
             });
           }
             }
     } catch (error) {
-      console.error("Failed to load items:", error);
+      console.error("Failed to load tasks:", error);
       res.status(500).json({
         error: "Internal Server Error",
-        message: "Failed to load items."
+        message: "Failed to load task."
       });
     }
 
