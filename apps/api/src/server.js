@@ -172,58 +172,58 @@ export function createApp() {
     const id = req.params.id;
     try {
       const result = await pool.query(`
-        SELECT id, name, quantity, restock_quantity
-        FROM items
+        SELECT id, title, description, status, created_at, updated_at
+        FROM tasks
         WHERE ID = $1
       `,
       [id]);
       if (result.rows.length === 0){
         res.status(404).json({ error: "Resource requested not found" });
       } else{
-              if ((req.body.hasOwnProperty('quantity') || req.body.hasOwnProperty('name')) || req.body.hasOwnProperty('restock_quantity') && Object.keys(req.body).length <= 3){
-        if (req.body.hasOwnProperty('quantity')){
-          const quantity = req.body.quantity;
-          const result =  await pool.query(
-            `
-            UPDATE items
-            SET quantity = $1
-            WHERE id = $2
-            `,
-            [quantity, id]
-          );
-        }
-        if (req.body.hasOwnProperty('name')){
-          const name = req.body.name;
-          const result =  await pool.query(
-            `
-            UPDATE items
-            SET name = $1
-            WHERE id = $2
-            `,
-            [name, id]
-          );
-        }
-        if (req.body.hasOwnProperty('restock_quantity')){
-          const restock_quantity = req.body?.restock_quantity
-          const result =  await pool.query(
-            `
-            UPDATE items
-            SET restock_quantity = $1
-            WHERE id = $2
-            `,
-            [restock_quantity, id]
-          );
-        }
+        if ((req.body.hasOwnProperty('title') || req.body.hasOwnProperty('description')) || req.body.hasOwnProperty('status') && Object.keys(req.body).length <= 3){
+          if (req.body.hasOwnProperty('title')){
+            const title = req.body.title;
+            const result =  await pool.query(
+              `
+              UPDATE tasks
+              SET title = $1, updated_at = current_timestamp
+              WHERE id = $2
+              `,
+              [title, id]
+            );
+          }
+          if (req.body.hasOwnProperty('description')){
+            const description = req.body.description;
+            const result =  await pool.query(
+              `
+              UPDATE tasks
+              SET description = $1, updated_at = current_timestamp
+              WHERE id = $2
+              `,
+              [description, id]
+            );
+          }
+          if (req.body.hasOwnProperty('status')){
+            const status = req.body.status;
+            const result =  await pool.query(
+              `
+              UPDATE tasks
+              SET status = $1, updated_at = current_timestamp
+              WHERE id = $2
+              `,
+              [status, id]
+            );
+          }
 
         try {
           const result = await pool.query(`
-            SELECT id, name, quantity, restock_quantity
-            FROM items
+            SELECT id, title, description, status, created_at, updated_at
+            FROM tasks
             WHERE ID = $1
           `,
           [id]);
 
-          res.json({ items: result.rows });
+          res.json({tasks: result.rows });
         } catch (error) {
           console.error("Failed to load items:", error);
           res.status(500).json({
