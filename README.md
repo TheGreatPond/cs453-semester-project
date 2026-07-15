@@ -1,6 +1,8 @@
 
 # CS453/553 Client-Server Architecture Project
 
+# FOR TESTING INSTRUCTIONS READ TESTING.MD
+
 This repository contains the **starter template** for the semester project in  
 **CS453 / CS553 – Client/Server Architectures**.
 
