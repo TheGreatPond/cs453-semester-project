@@ -11,11 +11,11 @@ Implement a basic REST API backed by PostgreSQL.
 
 ## Requirements
 
-- [ ] GET /tasks
-- [ ] POST /tasks
-- [ ] Validate input: title is required
-- [ ] Return proper HTTP status codes
-- [ ] Handle errors gracefully
+- [X] GET /tasks
+- [X] POST /tasks
+- [X] Validate input: title is required
+- [X] Return proper HTTP status codes
+- [X] Handle errors gracefully
 
 ## Deliverable
 
