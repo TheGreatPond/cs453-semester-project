@@ -35,7 +35,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: [{"id":1,"name":"keyboard","quantity":10,"restock_quantity":15},{"id":2,"name":"mouse","quantity":5,"restock_quantity":10}]
+                    example: [{"id": 2,"title": "second task","description": "this is the second task.","status": "done","created_at": "2026-07-14T07:47:21.716Z","updated_at": "2026-07-14T07:47:21.716Z"},{"id": 3,"title": "third task","description": "this is the third task.","status": "not started","created_at": "2026-07-14T07:50:21.716Z","updated_at": "2026-07-14T07:50:21.716Z"},{"id": 4,"title": "rip kurt","description": "kurt-da-king","status": "was-here","created_at": "2026-07-15T09:17:38.732Z","updated_at": "2026-07-15T09:18:52.642Z"}]
     post:
       summary: "Adds new task to list"
       requestBody:
