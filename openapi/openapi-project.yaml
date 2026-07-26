@@ -1,0 +1,217 @@
+openapi: 3.0.3
+info:
+  title: CS453 Semeter Project API
+  version: 1.0.0
+  description: First Swagger doc, describing basic CRUD operations on a list of tasks
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /health:
+    get:
+      summary: "Health check test"
+      responses:
+        "200":
+          description: "Server is running"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    type: "string"
+                    example: "ok"
+  /api/projects:
+    get:
+      summary: Get list of users
+      responses:
+        "200":
+          description: List of users returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    post:
+      summary: "Adds new user to list"
+      requestBody:
+        description: "needs a username"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: "Null response"
+        "400":
+          description: "Invalid request, task not created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
+
+  /api/projects/{name}:
+    get:
+      summary: Get project from list
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+          description: name of the project to get
+      responses:
+        "200":
+          description: Single project returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: "Resource requested not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    # put:
+    #   summary: Update one project in list
+    #   parameters:
+    #     - in: path
+    #       name: name
+    #       schema:
+    #         type: string
+    #       required: true
+    #       description: name of the project to update
+    #   requestBody:
+    #     description: "needs name of project"
+    #     required: true
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: "#/components/schemas/ProjectInput"
+    #   responses:
+    #     "200":
+    #       description: Single project returned
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/Project"
+    #     "404":
+    #       description: "Resource requested not found and could not be altered"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/ErrorNotFound"
+    #     "400":
+    #       description: "Invalid request, User not updated"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/ErrorInvalidBody"
+    # patch:
+    #   summary: Update part of one Project in list
+    #   parameters:
+    #     - in: path
+    #       name: name
+    #       schema:
+    #         type: string
+    #       required: true
+    #       description: name of the Project to update
+    #   requestBody:
+    #     description: "needs a combination of any of the following: project_name"
+    #     required: true
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: "#/components/schemas/ProjectInput"
+
+    #   responses:
+    #     "200":
+    #       description: Single Project returned
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/Project"
+    #     "404":
+    #       description: "Resource requested not found and could not be altered"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/ErrorNotFound"
+    #     "400":
+    #       description: "Invalid request, User not updated"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: "#/components/schemas/ErrorInvalidBody"
+    delete:
+      summary: Delete Project from db
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+          description: name of the Project to delete
+      responses:
+        "204":
+          description: "Null response"
+        "404":
+          description: "Resource requested not found and therefore not deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+
+  #
+  # Remember:
+  # - Express routes use :id, such as /tasks/:id.
+  # - OpenAPI paths use {id}, such as /tasks/{id}.
+  #
+  # You may define schemas under components/schemas if you want to avoid
+  # repeating the same object structure many times.
+
+components:
+  schemas:
+    Project:
+      type: object
+      required:
+        - name
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          example: "exampleProject"
+        created_at:
+          type: string
+          example: "creation_time"
+        updated_at:
+          type: string
+          example: "updated_time"
+    ProjectInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "exampleProject"
+  # DONE: Define an ErrorResponse schema with an error message.
+    ErrorNotFound:
+      type: object
+      properties:
+        Error:
+          type: string
+          example: "The resource you were looking for could not be found, please correct your path and try again"
+    ErrorInvalidBody:
+      type: object
+      properties:
+        Error:
+          type: string
+          example: "Invalid request body, please adjust your request and try again."

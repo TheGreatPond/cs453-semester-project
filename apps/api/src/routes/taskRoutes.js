@@ -453,7 +453,7 @@ export function createApp() {
     const id = req.params.id;
     try {
       const result = await pool.query(`
-        SELECT id, title, description, status, created_at, updated_at
+        SELECT *
         FROM tasks
         WHERE ID = $1
       `,
@@ -498,7 +498,7 @@ export function createApp() {
 
         try {
           const result = await pool.query(`
-            SELECT id, title, description, status, created_at, updated_at
+            SELECT *
             FROM tasks
             WHERE ID = $1
           `,
@@ -676,25 +676,25 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/users/:id", async (req, res) => {
-    const id = req.params.id;
+  app.delete("/api/users/:name", async (req, res) => {
+    const name = req.params.name;
 
     try {
       const result = await pool.query(`
-        SELECT id
+        SELECT *
         FROM users
-        WHERE ID = $1
+        WHERE USER_NAME = $1
       `,
-      [id]);
+      [name]);
       if (result.rows.length === 0){
         res.status(404).json({ error: "Resource requested not found" });
       } else{
           try {
             const result = await pool.query(`
               DELETE FROM users
-              WHERE ID = $1
+              WHERE USER_NAME = $1
             `,
-            [id]);
+            [name]);
             res.status(204).json({ result: "User successfully deleted" });
           } catch (error) {
             console.error("Failed to load user:", error);
@@ -714,25 +714,25 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/projects/:id", async (req, res) => {
-    const id = req.params.id;
+  app.delete("/api/projects/:name", async (req, res) => {
+    const name = req.params.name;
 
     try {
       const result = await pool.query(`
-        SELECT id
+        SELECT *
         FROM projects
-        WHERE ID = $1
+        WHERE PROJECT_NAME = $1
       `,
-      [id]);
+      [name]);
       if (result.rows.length === 0){
         res.status(404).json({ error: "Resource requested not found" });
       } else{
           try {
             const result = await pool.query(`
               DELETE FROM projects
-              WHERE ID = $1
+              WHERE PROJECT_NAME = $1
             `,
-            [id]);
+            [name]);
             res.status(204).json({ result: "project successfully deleted" });
           } catch (error) {
             console.error("Failed to load project:", error);
