@@ -4,10 +4,51 @@ info:
   version: 1.0.0
   description: First Swagger doc, describing basic CRUD operations on a list of tasks
 
+security:
+  - bearerAuth: []
+
 servers:
   - url: http://localhost:3000
 
 paths:
+  /api/auth/login:
+    post:
+      summary: "Login"
+      requestBody:
+        description: "needs a username and password"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsernameAndPassword"
+      responses:
+        "201":
+          description: "Null response"
+        "400":
+          description: "Invalid request, task not created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
+
+  /api/auth/me:
+    get:
+      summary: test login auth token
+      responses:
+        "200":
+          description: Single user returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Username"
+        "404":
+          description: "Resource requested not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+
   /health:
     get:
       summary: "Health check test"
@@ -236,3 +277,28 @@ components:
         Error:
           type: string
           example: "Invalid request body, please adjust your request and try again."
+    UsernameAndPassword:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "user"
+        password:
+          type: string
+          example: "user-password"
+    Username:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          example: "exampleuser"
+  securitySchemes:
+    bearerAuth:            # Arbitrary name for the scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # Optional hint for documentation

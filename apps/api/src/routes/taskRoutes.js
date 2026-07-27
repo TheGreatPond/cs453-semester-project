@@ -22,6 +22,7 @@ function authenticateToken(req, res, next) {
 
   try {
     req.user = jwt.verify(token, jwtSecret);
+    console.log(req.user)
     next();
   } catch {
     res.status(401).json({
@@ -807,11 +808,11 @@ export function createApp() {
       }
 
       const token = jwt.sign(
-        { username: user.username},
-        jwtSecret,
-        { expiresIn: jwtExpiresIn }
+      { username: user.user_name},
+      jwtSecret,
+      { expiresIn: jwtExpiresIn }
       );
-
+      console.log(token);
       res.json({
         accessToken: token,
         tokenType: "Bearer",
