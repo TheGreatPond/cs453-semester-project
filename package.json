@@ -16,8 +16,10 @@
 		"client": "http-server apps/api/client -p 5173 -c-1"
 	},
 	"dependencies": {
+		"bcryptjs": "^3.0.3",
 		"cors": "^2.8.6",
 		"express": "^4.21.2",
+		"jsonwebtoken": "^9.0.3",
 		"pg": "^8.22.0"
 	},
 	"repository": {

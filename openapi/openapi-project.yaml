@@ -202,6 +202,14 @@ components:
         name:
           type: string
           example: "exampleProject"
+    ProjectAndUser:
+      type: object
+      required:
+        - project_name
+      properties:
+        project_name:
+          type: string
+          example: "exampleProject"
   # DONE: Define an ErrorResponse schema with an error message.
     ErrorNotFound:
       type: object

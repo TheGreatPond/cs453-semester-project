@@ -1,7 +1,35 @@
 import express from "express";
 import cors from "cors";
 import {pool} from "../db/pool.ts";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
+
+const jwtSecret = process.env.JWT_SECRET ?? "development-only-change-me";
+const jwtExpiresIn = "1h";
+
+function authenticateToken(req, res, next) {
+  const authorization = req.get("authorization");
+
+  if (!authorization?.startsWith("Bearer ")) {
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Send a Bearer token in the Authorization header."
+    });
+  }
+
+  const token = authorization.slice("Bearer ".length);
+
+  try {
+    req.user = jwt.verify(token, jwtSecret);
+    next();
+  } catch {
+    res.status(401).json({
+      error: "Unauthorized",
+      message: "The access token is missing, invalid, or expired."
+    });
+  }
+}
 
 export function createApp() {
   const app = express();
@@ -749,6 +777,55 @@ export function createApp() {
         message: "Failed to load project."
       });
     }
+  });
+
+
+  app.post("/api/auth/login", async (req, res) => {
+    const username = req.body?.username?.trim();
+    const password = req.body?.password;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Username and password are required."
+      });
+    }
+
+    try {
+      const result = await pool.query(
+        "SELECT user_name, password_hash FROM users WHERE user_name = $1",
+        [username]
+      );
+      const user = result.rows[0];
+
+      // Use the same response for an unknown username and a wrong password.
+      if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+        return res.status(401).json({
+          error: "Unauthorized",
+          message: "Invalid username or password."
+        });
+      }
+
+      const token = jwt.sign(
+        { username: user.username},
+        jwtSecret,
+        { expiresIn: jwtExpiresIn }
+      );
+
+      res.json({
+        accessToken: token,
+        tokenType: "Bearer",
+        expiresIn: jwtExpiresIn,
+        user: { username: user.user_name }
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
+      res.status(500).json({ error: "Internal Server Error", message: "Login failed." });
+    }
+  });
+
+  app.get("/api/auth/me", authenticateToken, (req, res) => {
+    res.json({ user: req.user });
   });
 
   app.use((req, res) => {
