@@ -226,6 +226,7 @@ components:
         - id
         - title
         - status
+        - parent_project
         - description
         - created_at
         - updated_at
@@ -235,10 +236,13 @@ components:
           minimum: 1
         title:
           type: string
-          example: "test-title"
+          example: "task-name"
         status:
           type: string
           example: "todo"
+        parent_project:
+          type: string
+          example: "third_project"
         description:
           type: string
           example: "tell me about yourself"
@@ -253,6 +257,7 @@ components:
       required:
         - title
         - status
+        - parent_project
         - description
       properties:
         title:
@@ -261,6 +266,9 @@ components:
         status:
           type: string
           example: "todo"
+        parent_project:
+          type: string
+          example: "third_project"
         description:
           type: string
           example: "tell me about yourself"

@@ -32,11 +32,12 @@ export async function initializeDatabase() {
   if (rows[0].count === 0) {
 
     const passwordHash = await bcrypt.hash("user-password", 10);
+    const passwordHash2 = await bcrypt.hash("user2-password", 10);
     const adminPasswordHash = await bcrypt.hash("admin-password", 10);
 	  console.log("filling user table");
     await pool.query(
-      "INSERT INTO users (user_name, password_hash) VALUES ($1, $2), ($3, $4)",
-      ["user", passwordHash, "admin", adminPasswordHash]
+      "INSERT INTO users (user_name, password_hash) VALUES ($1, $2), ($3, $4), ($5, $6)",
+      ["user", passwordHash, "admin", adminPasswordHash, "user2", passwordHash2]
     );
 
   }
@@ -63,6 +64,9 @@ export async function initializeDatabase() {
     INSERT INTO PROJECTS (project_name) VALUES 
     ('second_project') 
     RETURNING project_name, created_at, updated_at;
+    INSERT INTO PROJECTS (project_name) VALUES 
+    ('third_project') 
+    RETURNING project_name, created_at, updated_at;
     `,
     );
   }
@@ -88,7 +92,9 @@ export async function initializeDatabase() {
       `
     INSERT INTO project_members (project_name, user_name)
     VALUES
-        ('first_project', 'user')
+        ('first_project', 'user'),
+        ('second_project', 'user'),
+        ('second_project', 'user2')
     `,
     );
   }
@@ -119,6 +125,8 @@ export async function initializeDatabase() {
 		INSERT INTO TASKS (title, description, status) VALUES ('second task', 'this is the second task.', 'done') RETURNING *;
 		INSERT INTO TASKS (title, description, status, parent_project) VALUES ('first_task', 'this is the first task.', 'in progress', 'second_project') RETURNING *;
     INSERT INTO TASKS (title, description, status, assigned_to, parent_project) VALUES ('fourth_task', 'this is the fourth task.', 'in progress', 'user', 'second_project') RETURNING *;
+    INSERT INTO TASKS (title, description, status, parent_project) VALUES ('fifth_task', 'this is the fifth task.', 'testing',  'third_project') RETURNING *;
+
       `,
     );
   }

@@ -8,6 +8,78 @@ import jwt from "jsonwebtoken";
 const jwtSecret = process.env.JWT_SECRET ?? "development-only-change-me";
 const jwtExpiresIn = "1h";
 
+async function getUserProjects(req, res) {
+  const user = req.user.username;
+  if (user === "admin"){
+    try {
+      const result = await pool.query(`
+        SELECT project_name
+        FROM projects
+      `);
+      const data = JSON.parse(JSON.stringify(result.rows));
+
+      // Extract only the values
+      const values = data.map(item => item.project_name);
+      console.log(`User ${req.user.username} has access to projects ` + values); 
+      return values;
+    } catch (error) {
+      console.error("Failed to load items:", error);
+      res.status(500).json({
+        error: "Internal Server Error",
+        message: "Failed to load items."
+      });
+    }
+  } else{
+    try {
+      const result = await pool.query(`
+        SELECT project_name
+        FROM project_members
+        WHERE USER_NAME = $1 
+      `,
+      [user]);
+      const data = JSON.parse(JSON.stringify(result.rows));
+
+      // Extract only the values
+      const values = data.map(item => item.project_name);
+      console.log(`User ${req.user.username} has access to projects ` + values); 
+      return values;
+    } catch (error) {
+      console.error("Failed to load items:", error);
+      res.status(500).json({
+        error: "Internal Server Error",
+        message: "Failed to load items."
+      });
+    }
+  }
+}
+/*
+async function projectMembershipCheck(req, res, project_name) {
+  //const user = req.user;
+  const user = req.user.username;
+  const projectname = "first_project";
+    try {
+      const result = await pool.query(`
+        SELECT *
+        FROM project_members
+        WHERE USER_NAME = $1 AND PROJECT_NAME = $2
+      `,
+      [user, projectname]);
+      if (result.rows.length === 0){
+        console.log("access denied");
+        return false;
+      } else{
+        console.log("access granted");      
+        return true
+      }
+    } catch (error) {
+      console.error("Failed to load items:", error);
+      res.status(500).json({
+        error: "Internal Server Error",
+        message: "Failed to load items."
+      });
+    }
+}
+*/
 function authenticateToken(req, res, next) {
   const authorization = req.get("authorization");
 
@@ -22,7 +94,6 @@ function authenticateToken(req, res, next) {
 
   try {
     req.user = jwt.verify(token, jwtSecret);
-    console.log(req.user)
     next();
   } catch {
     res.status(401).json({
@@ -68,13 +139,16 @@ export function createApp() {
   });
 
   // Starter route: return every task from the database.
-  app.get("/api/tasks", async (req, res) => {
+  app.get("/api/tasks", authenticateToken, async (req, res) => {
+    const user_projects =  await getUserProjects(req, res)
     try {
       const result = await pool.query(`
         SELECT *
         FROM tasks
+        WHERE parent_project = ANY($1)
         ORDER BY id ASC
-      `);
+      `,
+    [user_projects]);
 
       res.json({ items: result.rows });
     } catch (error) {
@@ -86,40 +160,45 @@ export function createApp() {
     }
   });
 
-  // Starter route: create one item so the client can demonstrate a write.
-  app.post("/api/tasks", async (req, res) => {
+  // permissions complete
+  app.post("/api/tasks", authenticateToken, async (req, res) => {
     const title = req.body?.title?.trim();
     const description = req.body?.description;
     const status = req.body?.status
+    const parent_project = req.body?.parent_project
+    const user_projects =  await getUserProjects(req, res)
 
-    if ((req.body.hasOwnProperty('title') && req.body.hasOwnProperty('description')) && req.body.hasOwnProperty('status') && Object.keys(req.body).length === 3){
+    if ((req.body.hasOwnProperty('title') && req.body.hasOwnProperty('description')) && req.body.hasOwnProperty('status') && req.body.hasOwnProperty('parent_project') && Object.keys(req.body).length === 4){
+      if (user_projects.includes(parent_project)) {
+        try {
+          const result = await pool.query(
+            `
+              INSERT INTO tasks (title, description, status, parent_project, created_at, updated_at)
+              VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
+              RETURNING *
+            `,
+            [title, description, status, parent_project]
+          );
 
-      try {
-        const result = await pool.query(
-          `
-            INSERT INTO tasks (title, description, status, created_at, updated_at)
-            VALUES ($1, $2, $3, current_timestamp, current_timestamp)
-            RETURNING *
-          `,
-          [title, description, status]
-        );
-
-        res.status(201).json({ task: result.rows[0] });
-      } catch (error) {
-        console.error("Failed to add task:", error);
-        res.status(500).json({
-          error: "Internal Server Error",
-          message: "Failed to add task."
-        });
+          res.status(201).json({ task: result.rows[0] });
+        } catch (error) {
+          console.error("Failed to add task:", error);
+          res.status(500).json({
+            error: "Internal Server Error",
+            message: "Failed to add task."
+          });
+        }
+      } else {
+          res.status(403).json({ error: "User is not authorized to create task within the project specified" });
       }
     } else {
-        res.status(400).json({ error: "Malformed json, please try again with title, description, and status" });
+        res.status(400).json({ error: "Malformed json, please try again with title, description, project_name, and status" });
     }
   });
 
 
   // Starter route: return every user from the database.
-  app.get("/api/users", async (req, res) => {
+  app.get("/api/users", authenticateToken, async (req, res) => {
     try {
       const result = await pool.query(`
         SELECT *
@@ -138,7 +217,7 @@ export function createApp() {
   });
 
   // Starter route: create one item so the client can demonstrate a write.
-  app.post("/api/users", async (req, res) => {
+  app.post("/api/users", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();
 
     try {
@@ -184,7 +263,9 @@ export function createApp() {
     });
 
   // Starter route: return every user from the database.
-  app.get("/api/projects", async (req, res) => {
+  app.get("/api/projects", authenticateToken, async (req, res) => {
+    getUserProjects(req, res);
+    //projectMembershipCheck(req, res, "first_project");
     try {
       const result = await pool.query(`
         SELECT *
@@ -203,7 +284,7 @@ export function createApp() {
   });
 
   // Starter route: return every user from the database.
-  app.get("/api/projects/members", async (req, res) => {
+  app.get("/api/projects/members", authenticateToken, async (req, res) => {
     try {
       const result = await pool.query(`
         SELECT *
@@ -222,7 +303,7 @@ export function createApp() {
   });
 
   // Starter route: create one item so the client can demonstrate a write.
-  app.post("/api/projects", async (req, res) => {
+  app.post("/api/projects", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();
 
     try {
@@ -271,7 +352,7 @@ export function createApp() {
   });
 
   // DONE: Return one task by ID.
-  app.get("/api/tasks/:id", async (req, res) => {
+  app.get("/api/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -295,7 +376,7 @@ export function createApp() {
   });
 
   // DONE: Return one user by ID.
-  app.get("/api/users/:name", async (req, res) => {
+  app.get("/api/users/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
     try {
       const result = await pool.query(`
@@ -319,7 +400,7 @@ export function createApp() {
   });
 
   // DONE: Return one user by ID.
-  app.get("/api/projects/:name", async (req, res) => {
+  app.get("/api/projects/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
     try {
       const result = await pool.query(`
@@ -343,7 +424,7 @@ export function createApp() {
   });
 
   // DONE: Replace one task by ID.
-  app.put("/api/tasks/:id", async (req, res) => {
+  app.put("/api/tasks/:id", authenticateToken, async (req, res) => {
     const title = req.body?.title?.trim();
     const description = req.body?.description?.trim();
     const status = req.body?.status?.trim();
@@ -478,7 +559,7 @@ export function createApp() {
   */
 
   // DONE: Partially update one task by ID.
-  app.patch("/api/tasks/:id", async (req, res) => {
+  app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -667,7 +748,7 @@ export function createApp() {
   */
 
   // DONE: Delete one task by ID.
-  app.delete("/api/tasks/:id", async (req, res) => {
+  app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
 
     try {
@@ -705,7 +786,7 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/users/:name", async (req, res) => {
+  app.delete("/api/users/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
 
     try {
@@ -743,7 +824,7 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/projects/:name", async (req, res) => {
+  app.delete("/api/projects/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
 
     try {
@@ -812,7 +893,6 @@ export function createApp() {
       jwtSecret,
       { expiresIn: jwtExpiresIn }
       );
-      console.log(token);
       res.json({
         accessToken: token,
         tokenType: "Bearer",
