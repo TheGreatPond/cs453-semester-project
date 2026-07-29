@@ -8,100 +8,6 @@ import jwt from "jsonwebtoken";
 const jwtSecret = process.env.JWT_SECRET ?? "development-only-change-me";
 const jwtExpiresIn = "1h";
 
-export async function getUserProjects(req, res) {
-  const user = req.user.username;
-  if (user === "admin"){
-    try {
-      const result = await pool.query(`
-        SELECT project_name
-        FROM projects
-      `);
-      const data = JSON.parse(JSON.stringify(result.rows));
-
-      // Extract only the values
-      const values = data.map(item => item.project_name);
-      console.log(`User ${req.user.username} has access to projects ` + values); 
-      return values;
-    } catch (error) {
-      console.error("Failed to load items:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load items."
-      });
-    }
-  } else{
-    try {
-      const result = await pool.query(`
-        SELECT project_name
-        FROM project_members
-        WHERE USER_NAME = $1 
-      `,
-      [user]);
-      const data = JSON.parse(JSON.stringify(result.rows));
-
-      // Extract only the values
-      const values = data.map(item => item.project_name);
-      console.log(`User ${req.user.username} has access to projects ` + values); 
-      return values;
-    } catch (error) {
-      console.error("Failed to load items:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load items."
-      });
-    }
-  }
-}
-/*
-async function projectMembershipCheck(req, res, project_name) {
-  //const user = req.user;
-  const user = req.user.username;
-  const projectname = "first_project";
-    try {
-      const result = await pool.query(`
-        SELECT *
-        FROM project_members
-        WHERE USER_NAME = $1 AND PROJECT_NAME = $2
-      `,
-      [user, projectname]);
-      if (result.rows.length === 0){
-        console.log("access denied");
-        return false;
-      } else{
-        console.log("access granted");      
-        return true
-      }
-    } catch (error) {
-      console.error("Failed to load items:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load items."
-      });
-    }
-}
-*/
-export function authenticateToken(req, res, next) {
-  const authorization = req.get("authorization");
-
-  if (!authorization?.startsWith("Bearer ")) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      message: "Send a Bearer token in the Authorization header."
-    });
-  }
-
-  const token = authorization.slice("Bearer ".length);
-
-  try {
-    req.user = jwt.verify(token, jwtSecret);
-    next();
-  } catch {
-    res.status(401).json({
-      error: "Unauthorized",
-      message: "The access token is missing, invalid, or expired."
-    });
-  }
-}
 
 export function createApp() {
   const app = express();
@@ -125,18 +31,7 @@ export function createApp() {
 
   }));
 
-  app.get("/health", async (req, res) => {
-    try {
-      await pool.query("SELECT 1");
-      res.json({ status: "ok" });
-    } catch (error) {
-      console.error("Health check failed:", error);
-      res.status(500).json({
-        status: "error",
-        message: "Database connection failed."
-      });
-    }
-  });
+
 
 
 
@@ -622,6 +517,53 @@ export function createApp() {
     }
   });
 
+
+  app.post("/auth/login", async (req, res) => {
+    const username = req.body?.username?.trim();
+    const password = req.body?.password;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Username and password are required."
+      });
+    }
+
+    try {
+      const result = await pool.query(
+        "SELECT user_name, password_hash FROM users WHERE user_name = $1",
+        [username]
+      );
+      const user = result.rows[0];
+
+      // Use the same response for an unknown username and a wrong password.
+      if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+        return res.status(401).json({
+          error: "Unauthorized",
+          message: "Invalid username or password."
+        });
+      }
+
+      const token = jwt.sign(
+      { username: user.user_name},
+      jwtSecret,
+      { expiresIn: jwtExpiresIn }
+      );
+      res.json({
+        accessToken: token,
+        tokenType: "Bearer",
+        expiresIn: jwtExpiresIn,
+        user: { username: user.user_name }
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
+      res.status(500).json({ error: "Internal Server Error", message: "Login failed." });
+    }
+  });
+
+  app.get("/auth/me", authenticateToken, (req, res) => {
+    res.json({ user: req.user });
+  });
 
   app.use((req, res) => {
     res.status(404).json({ error: "Not found" });
