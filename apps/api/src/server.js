@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import {initializeDatabase} from "./db/pool.ts";
-import {createApp} from "./routes/taskRoutes.js";
+import {createApp} from "./app2.js";
 
 
 
