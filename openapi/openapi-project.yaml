@@ -11,7 +11,7 @@ servers:
   - url: http://localhost:3000
 
 paths:
-  /api/auth/login:
+  /auth/login:
     post:
       summary: "Login"
       requestBody:
@@ -31,7 +31,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorInvalidBody"
 
-  /api/auth/me:
+  /auth/me:
     get:
       summary: test login auth token
       responses:
@@ -61,7 +61,7 @@ paths:
                   status:
                     type: "string"
                     example: "ok"
-  /api/projects:
+  /projects:
     get:
       summary: Get list of users
       responses:
@@ -90,7 +90,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorInvalidBody"
 
-  /api/projects/{name}:
+  /projects/{name}:
     get:
       summary: Get project from list
       parameters:

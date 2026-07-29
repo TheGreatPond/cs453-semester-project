@@ -139,7 +139,7 @@ export function createApp() {
   });
 
   // Starter route: return every task from the database.
-  app.get("/api/tasks", authenticateToken, async (req, res) => {
+  app.get("/tasks", authenticateToken, async (req, res) => {
     const user_projects =  await getUserProjects(req, res)
     try {
       const result = await pool.query(`
@@ -161,7 +161,7 @@ export function createApp() {
   });
 
   // permissions complete
-  app.post("/api/tasks", authenticateToken, async (req, res) => {
+  app.post("/tasks", authenticateToken, async (req, res) => {
     const title = req.body?.title?.trim();
     const description = req.body?.description;
     const status = req.body?.status
@@ -198,7 +198,7 @@ export function createApp() {
 
 
   // Starter route: return every user from the database.
-  app.get("/api/users", authenticateToken, async (req, res) => {
+  app.get("/users", authenticateToken, async (req, res) => {
     try {
       const result = await pool.query(`
         SELECT *
@@ -217,7 +217,7 @@ export function createApp() {
   });
 
   // Starter route: create one item so the client can demonstrate a write.
-  app.post("/api/users", authenticateToken, async (req, res) => {
+  app.post("/users", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();
 
     try {
@@ -263,7 +263,7 @@ export function createApp() {
     });
 
   // Starter route: return every user from the database.
-  app.get("/api/projects", authenticateToken, async (req, res) => {
+  app.get("/projects", authenticateToken, async (req, res) => {
     getUserProjects(req, res);
     //projectMembershipCheck(req, res, "first_project");
     try {
@@ -284,7 +284,7 @@ export function createApp() {
   });
 
   // Starter route: return every user from the database.
-  app.get("/api/projects/members", authenticateToken, async (req, res) => {
+  app.get("/projects/members", authenticateToken, async (req, res) => {
     try {
       const result = await pool.query(`
         SELECT *
@@ -303,7 +303,7 @@ export function createApp() {
   });
 
   // Starter route: create one item so the client can demonstrate a write.
-  app.post("/api/projects", authenticateToken, async (req, res) => {
+  app.post("/projects", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();
 
     try {
@@ -352,7 +352,7 @@ export function createApp() {
   });
 
   // DONE: Return one task by ID.
-  app.get("/api/tasks/:id", authenticateToken, async (req, res) => {
+  app.get("/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -376,7 +376,7 @@ export function createApp() {
   });
 
   // DONE: Return one user by ID.
-  app.get("/api/users/:name", authenticateToken, async (req, res) => {
+  app.get("/users/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
     try {
       const result = await pool.query(`
@@ -400,7 +400,7 @@ export function createApp() {
   });
 
   // DONE: Return one user by ID.
-  app.get("/api/projects/:name", authenticateToken, async (req, res) => {
+  app.get("/projects/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
     try {
       const result = await pool.query(`
@@ -424,7 +424,7 @@ export function createApp() {
   });
 
   // DONE: Replace one task by ID.
-  app.put("/api/tasks/:id", authenticateToken, async (req, res) => {
+  app.put("/tasks/:id", authenticateToken, async (req, res) => {
     const title = req.body?.title?.trim();
     const description = req.body?.description?.trim();
     const status = req.body?.status?.trim();
@@ -471,7 +471,7 @@ export function createApp() {
   /*
 
   // DONE: Replace one user by ID.
-  app.put("/api/users/:name", async (req, res) => {
+  app.put("/users/:name", async (req, res) => {
     const name = req.body?.name?.trim();
     const old_name = req.params.name;
 
@@ -514,7 +514,7 @@ export function createApp() {
   });
 
   // DONE: Replace one user by ID.
-  app.put("/api/projects/:id", async (req, res) => {
+  app.put("/projects/:id", async (req, res) => {
     const name = req.body?.name?.trim();
     const id = req.params.id;
 
@@ -559,7 +559,7 @@ export function createApp() {
   */
 
   // DONE: Partially update one task by ID.
-  app.patch("/api/tasks/:id", authenticateToken, async (req, res) => {
+  app.patch("/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -638,7 +638,7 @@ export function createApp() {
   /*
 
   // DONE: Partially update one user by ID.
-  app.patch("/api/users/:id", async (req, res) => {
+  app.patch("/users/:id", async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -692,7 +692,7 @@ export function createApp() {
   });
 
   // DONE: Partially update one project by ID.
-  app.patch("/api/projects/:id", async (req, res) => {
+  app.patch("/projects/:id", async (req, res) => {
     const id = req.params.id;
     try {
       const result = await pool.query(`
@@ -748,7 +748,7 @@ export function createApp() {
   */
 
   // DONE: Delete one task by ID.
-  app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
+  app.delete("/tasks/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
 
     try {
@@ -786,7 +786,7 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/users/:name", authenticateToken, async (req, res) => {
+  app.delete("/users/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
 
     try {
@@ -824,7 +824,7 @@ export function createApp() {
   });
 
   // DONE: Delete one task by ID.
-  app.delete("/api/projects/:name", authenticateToken, async (req, res) => {
+  app.delete("/projects/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
 
     try {
@@ -862,7 +862,7 @@ export function createApp() {
   });
 
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/auth/login", async (req, res) => {
     const username = req.body?.username?.trim();
     const password = req.body?.password;
 
@@ -905,7 +905,7 @@ export function createApp() {
     }
   });
 
-  app.get("/api/auth/me", authenticateToken, (req, res) => {
+  app.get("/auth/me", authenticateToken, (req, res) => {
     res.json({ user: req.user });
   });
 
