@@ -32,7 +32,7 @@ export async function initializeDatabase() {
 
   if (rows[0].count === 0) {
 
-    const passwordHash = await bcrypt.hash("user-password", 10);
+    const passwordHash = await bcrypt.hash("user1-password", 10);
     const passwordHash2 = await bcrypt.hash("user2-password", 10);
     const adminPasswordHash = await bcrypt.hash("admin-password", 10);
 	  console.log("filling user table");

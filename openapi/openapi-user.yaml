@@ -4,6 +4,9 @@ info:
   version: 1.0.0
   description: First Swagger doc, describing basic CRUD operations on a list of tasks
 
+security:
+  - bearerAuth: []
+
 servers:
   - url: http://localhost:3000
 
@@ -97,77 +100,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
-    # put:
-    #   summary: Update one user in list
-    #   parameters:
-    #     - in: path
-    #       name: name
-    #       schema:
-    #         type: string
-    #       required: true
-    #       description: name of the user to update
-    #   requestBody:
-    #     description: "needs name of user"
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: "#/components/schemas/UserInput"
-    #   responses:
-    #     "200":
-    #       description: Single user returned
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/User"
-    #     "404":
-    #       description: "Resource requested not found and could not be altered"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorNotFound"
-    #     "400":
-    #       description: "Invalid request, User not updated"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorInvalidBody"
-    # patch:
-    #   summary: Update part of one user in list
-    #   parameters:
-    #     - in: path
-    #       name: name
-    #       schema:
-    #         type: string
-    #       required: true
-    #       description: name of the user to update
-    #   requestBody:
-    #     description: "needs a combination of any of the following: name"
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: "#/components/schemas/UserInput"
-
-    #   responses:
-    #     "200":
-    #       description: Single User returned
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/User"
-    #     "404":
-    #       description: "Resource requested not found and could not be altered"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorNotFound"
-    #     "400":
-    #       description: "Invalid request, User not updated"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorInvalidBody"
+    patch:
+      summary: Update one user in list
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+          description: name of the user to update
+      requestBody:
+        description: "Users are allowed to replace their own password. Admins may replace the password and role of any user"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPatch"
+      responses:
+        "200":
+          description: Single user returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: "Resource requested not found and could not be altered"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+        "400":
+          description: "Invalid request, User not updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidBody"
     delete:
       summary: Delete User from db
       parameters:
@@ -201,7 +168,7 @@ components:
       type: object
       required:
         - name
-        - hashed_pw
+        - unhashed_pw
         - created_at
         - updated_at
       properties:
@@ -221,10 +188,26 @@ components:
       type: object
       required:
         - name
+        - unhashed_pw
       properties:
         name:
           type: string
           example: "exampleuser"
+        unhashed_pw:
+          type: string
+          example: "some-unhashed-password-here"
+    UserPatch:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "exampleuser"
+        unhashed_pw:
+          type: string
+          example: "some-unhashed-password-here"
+        role:
+          type: string
+          example: "admin"
   # DONE: Define an ErrorResponse schema with an error message.
     ErrorNotFound:
       type: object
@@ -246,10 +229,10 @@ components:
       properties:
         username:
           type: string
-          example: "user"
+          example: "user1"
         password:
           type: string
-          example: "user-password"
+          example: "user1-password"
     Username:
       type: object
       required:

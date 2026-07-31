@@ -36,25 +36,6 @@ export function createApp() {
 
 
 
-  // Starter route: return every user from the database.
-  app.get("/users", authenticateToken, async (req, res) => {
-    try {
-      const result = await pool.query(`
-        SELECT *
-        FROM users
-        ORDER BY user_name ASC
-      `);
-
-      res.json({ users: result.rows });
-    } catch (error) {
-      console.error("Failed to load users:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load users."
-      });
-    }
-  });
-
   // Starter route: create one item so the client can demonstrate a write.
   app.post("/users", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();

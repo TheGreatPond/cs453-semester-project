@@ -17,7 +17,7 @@ export function createApp() {
     }));
 
     app.use("/tasks", taskRoutes);
-    // app.use("/users", userRoutes);
+    app.use("/users", userRoutes);
     // app.use("/projects", projectRoutes);
     app.use("/auth", authRoutes);
 

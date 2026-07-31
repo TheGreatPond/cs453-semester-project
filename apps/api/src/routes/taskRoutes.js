@@ -59,7 +59,7 @@ router.post("/", authenticateToken, async (req, res) => {
           });
         }
       } else {
-          res.status(403).json({ error: "User cannot create new task in a project they are not the owner of" });
+          res.status(401).json({ error: "Unauthorized: User cannot create new task in a project they are not the owner of" });
       }
     } else {
         res.status(400).json({ error: "Malformed json, please try again with title, description, project_name, and status" });
@@ -93,7 +93,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
         });
         }
     } else {
-          res.status(403).json({ error: "User is not authorized to get the task requested since it belongs to a project they are not a member of" });
+          res.status(401).json({ error: "Unauthorized: User is not authorized to get the task requested since it belongs to a project they are not a member of" });
     }
   });
 
@@ -106,7 +106,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     const user_projects =  await getUserProjects(req, res);
     const parent_project = await getTaskParentProject(id);
-    if (user_projects.includes(parent_project) && user_projects.includes(new_parent_project)) {
+    if (((req.user.username == (await getProjectOwner(new_parent_project))) && (req.user.username == (await getProjectOwner(parent_project)))) || (req.user.role == "admin")) {
       try {
         const result = await pool.query(`
           SELECT id, title, description, status, created_at, updated_at
@@ -122,7 +122,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
                 `
                 UPDATE tasks
                 SET title = $1, description = $2, status = $3, parent_project = $4, updated_at = current_timestamp
-                WHERE id = $4
+                WHERE id = $5
                 `,
                 [title, description, status, parent_project, id]
               );
@@ -144,9 +144,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else if (!user_projects.includes(new_parent_project))  {
-          res.status(403).json({ error: "User is not authorized to place the task requested in a project the user is not a member of" });
+          res.status(401).json({ error: "Unauthorized: User is not authorized to place the task requested in a project the user is not the owner of" });
     } else {
-          res.status(403).json({ error: "User is not authorized to modify the task requested since it belongs to a project they the user is not a member of" });
+          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested since it belongs to a project they are not the owner of" });
     }
   });
 
@@ -155,7 +155,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     const user_projects =  await getUserProjects(req, res);
     const parent_project = await getTaskParentProject(id);
-    if (user_projects.includes(parent_project)) {
+    if (req.user.username == (await getProjectOwner(parent_project))) {
       try {
         const result = await pool.query(`
           SELECT *
@@ -203,7 +203,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
             if (req.body.hasOwnProperty('parent_project')){
               const new_parent_project = req.body.parent_project;
               if (!user_projects.includes(new_parent_project))  {
-                    res.status(403).json({ error: "Parent Project update failed. User is not authorized to place the task requested in a project the user is not a member of" });
+                    res.status(401).json({ error: "Unauthorized: Parent Project update failed. User is not authorized to place the task requested in a project the user is not a member of" });
               } else {
                   const result =  await pool.query(
                   `
@@ -244,7 +244,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else {
-          res.status(403).json({ error: "User is not authorized to modify the task requested since it belongs to a project they the user is not a member of" });
+          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested they are not the owner of the project the task belongs to." });
     }
   });
 // TODO: stop users from deleting task outside of projects they are members of
@@ -252,7 +252,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     const id = req.params.id;
     const user_projects =  await getUserProjects(req, res);
     const parent_project = await getTaskParentProject(id);
-    if (user_projects.includes(parent_project)) {
+    if (req.user.username == (await getProjectOwner(parent_project))) {
 
       try {
         const result = await pool.query(`
@@ -287,7 +287,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else {
-          res.status(403).json({ error: "User is not authorized to modify the task requested since it belongs to a project they the user is not a member of" });
+          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested they are not the owner of the project the task belongs to."});
     }
   });
 
