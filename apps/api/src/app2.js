@@ -4,7 +4,7 @@ import {pool} from "./db/pool.ts";
 
 import taskRoutes from "./routes/taskRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import projectRoutes from "./routes/projectRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js"; 
 import authRoutes from "./routes/authRoutes.js";
 
 export function createApp() {
@@ -18,7 +18,7 @@ export function createApp() {
 
     app.use("/tasks", taskRoutes);
     app.use("/users", userRoutes);
-    // app.use("/projects", projectRoutes);
+    app.use("/projects", projectRoutes);
     app.use("/auth", authRoutes);
 
     app.get("/health", async (req, res) => {

@@ -5,6 +5,7 @@ let baseUrl = `http://127.0.0.1:${PORT}`;
 let token;
 let userToken;
 let adminToken;
+let createdUserToken;
 
 async function getJson(path) {
     const response = await fetch(`${baseUrl}${path}`, {
@@ -413,8 +414,183 @@ describe("Testing Suite for semester project server", () => {
 
     });
     describe("Testing User Routes and Methods", () => {
+        test("Test user1 attempting to list all users with GET /users", async () => {
+            token = userToken;
+            const result = await getJson("/users");
 
+            expect(result.status).toBe(403);
+            expect(result.body).toEqual({
+                "error": "Forbidden: Only users with the role admin are permitted to list other users"
+            });
+        });
+        test("Test admin attempting to list all users with GET /users", async () => {
+            token = adminToken;
+            const result = await getJson("/users");
 
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({
+                "users": [
+                    {
+                    "user_name": "admin",
+                    "role": "admin"
+                    },
+                    {
+                    "user_name": "user1",
+                    "role": "user"
+                    },
+                    {
+                    "user_name": "user2",
+                    "role": "user"
+                    }
+                ]
+            });
+        });
+        test("Test creating a user", async () => {
+            token = userToken;
+            const result = await postJsonNoHeader("/users", {
+                "name": "postuser",
+                "unhashed_pw": "some-unhashed-password-here"
+            });
+        
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({
+                "users": {
+                    "user_name": "postuser"
+                }
+            });
+        }); 
+        test("Login with created user", async () => {
+            const result = await postJson("/auth/login", {
+                "username": "postuser",
+                "password": "some-unhashed-password-here"
+            });
+
+            expect(result.status).toBe(200);
+            createdUserToken = result.body.accessToken;
+        });
+        test("Try /auth/me with created user to validate user", async () => {
+            token = createdUserToken;
+            const result = await getJson("/auth/me");
+
+            expect(result.status).toBe(200);
+            
+        });
+        test("Request own user by username", async () => {
+            token = userToken;
+            const result = await getJson("/users/user1");
+
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({
+                "users": [
+                    {
+                    "user_name": "user1",
+                    "role": "user"
+                    }
+                ]
+            });
+        });
+        test("Fail to GET another user since default users cannot get info on other users", async () => {
+            token = userToken;
+            const result = await getJson("/users/admin");
+
+            expect(result.status).toBe(403);
+            expect(result.body).toMatchObject({
+                "error": "Forbidden: Only users with the role admin are permitted to list other users"
+            });
+        });
+        test("PATCH user to update password", async () => {
+            token = userToken;
+            const result = await patchJson("/users/user1", {
+                "unhashed_pw": "test"
+            });
+
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({
+                "Result": "password of user user1 updated"
+            });
+            });
+
+        test("PATCH user to update password and role with admin account", async () => {
+            token = adminToken;
+            const result = await patchJson("/users/user1", {
+                "unhashed_pw": "test2",
+                "role": "admin"
+            });
+
+            expect(result.status).toBe(201);
+        });
+        test("Verify user1 is now an admin", async () => {
+            token = userToken;
+            const result = await getJson("/users/user1");
+
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({
+                "users": [
+                    {
+                    "user_name": "user1",
+                    "role": "admin"
+                    }
+                ]
+            });
+        });
+        test("PATCH user1 back to a normal user", async () => {
+            token = adminToken;
+            const result = await patchJson("/users/user1", {
+                "unhashed_pw": "test2",
+                "role": "user"
+            });
+
+            expect(result.status).toBe(201);
+        });
+        test("DELETE postuser's own user by username", async () => {
+            token = createdUserToken;
+            const result = await deleteJson("/users/postuser");
+
+            expect(result.status).toBe(204);
+            });
+
+        test("Fail to DELETE user that is not own user", async () => {
+            token = userToken;
+            const result = await deleteJson("/users/user2");
+
+            expect(result.status).toBe(403);
+            expect(result.body).toMatchObject({
+                "error": "Forbidden: Users with the \"user\" role are only allowed to delete themselves. Users with the \"admin\" role can delete any user besides the user \"admin\""
+            });
+        });
+    });
+    describe("Testing Project Routes and Methods", () => {
+        test("Test GET /projects", async () => {
+            token = userToken;
+            const result = await getJson("/projects");
+
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({
+                "projects": [
+                    {
+                    "project_name": "first_project",
+                    "owner": "user1",
+                    "description": null,
+                    "created_at": "2026-08-03T02:10:51.705Z",
+                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    },
+                    {
+                    "project_name": "second_project",
+                    "owner": "user1",
+                    "description": null,
+                    "created_at": "2026-08-03T02:10:51.705Z",
+                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    },
+                    {
+                    "project_name": "third_project",
+                    "owner": "user2",
+                    "description": null,
+                    "created_at": "2026-08-03T02:10:51.705Z",
+                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    }
+                ]
+            });
+        });
     });
 });
     /*

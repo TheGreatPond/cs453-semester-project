@@ -13,7 +13,7 @@ router.get("/", authenticateToken, async (req, res) => {
     if (req.user.role == "admin") {
         try {
         const result = await pool.query(`
-            SELECT *
+            SELECT user_name, role, created_at, updated_at
             FROM users
             ORDER BY user_name ASC
         `);
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
 
     try {
       const result = await pool.query(`
-        SELECT *
+        SELECT user_name, role, created_at, updated_at
         FROM users
         WHERE user_name = $1
       `,
@@ -86,7 +86,7 @@ router.get("/:name", authenticateToken, async (req, res) => {
     if (req.user.role == "admin" || req.user.username == name) {
         try {
         const result = await pool.query(`
-            SELECT *
+            SELECT user_name, role, created_at, updated_at
             FROM users
             WHERE USER_NAME = $1
         `,
@@ -205,7 +205,7 @@ router.delete("/:name", authenticateToken, async (req, res) => {
     if ((role == "admin" || req.user.username == old_name) && (old_name != "admin")) {
     try {
       const result = await pool.query(`
-        SELECT *
+        SELECT user_name, role, created_at, updated_at
         FROM users
         WHERE USER_NAME = $1
       `,
