@@ -13,6 +13,7 @@ servers:
 paths:
   /auth/login:
     post:
+      security: []
       summary: "Login"
       requestBody:
         description: "needs a username and password"

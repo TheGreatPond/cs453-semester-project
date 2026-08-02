@@ -13,6 +13,7 @@ servers:
 paths:
   /auth/login:
     post:
+      security: []
       summary: "Login"
       requestBody:
         description: "needs a username and password"
@@ -60,6 +61,7 @@ paths:
                 $ref: "#/components/schemas/User"
     post:
       summary: "Adds new user to list"
+      security: []
       requestBody:
         description: "needs a username"
         required: true
@@ -199,15 +201,12 @@ components:
     UserPatch:
       type: object
       properties:
-        name:
-          type: string
-          example: "exampleuser"
         unhashed_pw:
           type: string
           example: "some-unhashed-password-here"
         role:
           type: string
-          example: "admin"
+          example: "user"
   # DONE: Define an ErrorResponse schema with an error message.
     ErrorNotFound:
       type: object

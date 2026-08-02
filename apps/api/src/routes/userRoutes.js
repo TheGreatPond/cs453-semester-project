@@ -31,42 +31,53 @@ router.get("/", authenticateToken, async (req, res) => {
     }
   });
 
-router.post("/", authenticateToken, async (req, res) => {
-    const title = req.body?.title?.trim();
-    const description = req.body?.description;
-    const status = req.body?.status
-    const parent_project = req.body?.parent_project
+router.post("/", async (req, res) => {
+    const name = req.body?.name?.trim();
+    const unhashed_pw = req.body?.unhashed_pw?.trim();
+    const passwordHash = await bcrypt.hash(unhashed_pw, 10);
 
-    console.log(req.user.username);
-    console.log(await getProjectOwner(parent_project));
+    try {
+      const result = await pool.query(`
+        SELECT *
+        FROM users
+        WHERE user_name = $1
+      `,
+      [name]);
+      if (result.rows.length !== 0){
+        res.status(400).json({ error: "That username has already been taken, please try again." });
+      } else if (req.body.hasOwnProperty('name') && req.body.hasOwnProperty('unhashed_pw') && Object.keys(req.body).length === 2){
 
-    if ((req.body.hasOwnProperty('title') && req.body.hasOwnProperty('description')) && req.body.hasOwnProperty('status') && req.body.hasOwnProperty('parent_project') && Object.keys(req.body).length === 4){
-      if (req.user.username == (await getProjectOwner(parent_project)) || req.user.role == "admin") {
-        try {
-          const result = await pool.query(
-            `
-              INSERT INTO tasks (title, description, status, parent_project, created_at, updated_at)
-              VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
-              RETURNING *
-            `,
-            [title, description, status, parent_project]
-          );
+      try {
+        const result = await pool.query(
+          `
+            INSERT INTO users (user_name, password_hash)
+            VALUES ($1, $2)
+            RETURNING user_name
+          `,
+          [name, passwordHash]
+        );
 
-          res.status(201).json({ task: result.rows[0] });
-        } catch (error) {
-          console.error("Failed to add task:", error);
-          res.status(500).json({
-            error: "Internal Server Error",
-            message: "Failed to add task."
-          });
-        }
-      } else {
-          res.status(401).json({ error: "Unauthorized: User cannot create new task in a project they are not the owner of" });
+        res.status(201).json({ users: result.rows[0] });
+      } catch (error) {
+        console.error("Failed to add user:", error);
+        res.status(500).json({
+          error: "Internal Server Error",
+          message: "Failed to add user."
+        });
       }
     } else {
-        res.status(400).json({ error: "Malformed json, please try again with title, description, project_name, and status" });
+        res.status(400).json({ error: "Malformed json, please try again with only a name and unhashed_pw" });
     }
-  });
+    } catch (error) {
+        console.error("Failed to load users:", error);
+        res.status(500).json({
+          error: "Internal Server Error",
+          message: "Failed to load users."
+        });
+  
+      }
+    });
+
 
 
 // TODO: stop users from accessing task they do not have permissions to the project they belong in 
@@ -191,7 +202,7 @@ router.patch("/:name", authenticateToken, async (req, res) => {
 router.delete("/:name", authenticateToken, async (req, res) => {
     const old_name = req.params.name;
     const role = req.user.role
-    if (role == "admin" || req.user.username == old_name) {
+    if ((role == "admin" || req.user.username == old_name) && (old_name != "admin")) {
     try {
       const result = await pool.query(`
         SELECT *
@@ -224,7 +235,9 @@ router.delete("/:name", authenticateToken, async (req, res) => {
         message: "Failed to load user."
       });
     }
-  }
+  } else {
+      res.status(401).json({ error: "Unauthorized: Users with the \"user\" role are only allowed to delete themselves. Users with the \"admin\" role can delete any user besides the user \"admin\"" });
+    }
 });
 
 export default router;

@@ -81,8 +81,8 @@ export async function initializeDatabase() {
 
     PRIMARY KEY (project_name, user_name),
 
-    FOREIGN KEY (project_name) REFERENCES projects(project_name),
-    FOREIGN KEY (user_name) REFERENCES users(user_name)
+    FOREIGN KEY (project_name) REFERENCES projects(project_name) ON DELETE CASCADE,
+    FOREIGN KEY (user_name) REFERENCES users(user_name) ON DELETE CASCADE
 	)
   `);
 
@@ -114,7 +114,8 @@ export async function initializeDatabase() {
 		created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     
-    FOREIGN KEY (assigned_to) REFERENCES users(user_name)
+    FOREIGN KEY (assigned_to) REFERENCES users(user_name),
+    FOREIGN KEY (parent_project) REFERENCES projects(project_name) ON DELETE CASCADE
 	)
   `);
 

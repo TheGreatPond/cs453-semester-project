@@ -6,7 +6,7 @@ import {createApp} from "./app2.js";
 
 
 const isMainModule = process.argv[1] === new URL(import.meta.url).pathname;
-const PORT = process.env.PORT || 3000;
+export const PORT = process.env.PORT || 3000;
 
 if (isMainModule) {
   const app = createApp();
