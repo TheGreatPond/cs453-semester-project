@@ -228,10 +228,10 @@ components:
       properties:
         username:
           type: string
-          example: "user1"
+          example: "user1@email.com"
         password:
           type: string
-          example: "user1-password"
+          example: "user1@email.com-password"
     Username:
       type: object
       required:
@@ -239,7 +239,7 @@ components:
       properties:
         username:
           type: string
-          example: "exampleuser"
+          example: "exampleuser@email.com"
   securitySchemes:
     bearerAuth:            # Arbitrary name for the scheme
       type: http

@@ -11,7 +11,7 @@
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"check": "biome check .",
-    	"test": "vitest run",
+		"test": "vitest run",
 		"api": "node apps/api/src/server.js",
 		"client": "http-server apps/api/client -p 5173 -c-1"
 	},
@@ -21,6 +21,7 @@
 		"express": "^4.21.2",
 		"jsonwebtoken": "^9.0.3",
 		"pg": "^8.22.0",
+		"validator": "^13.15.35",
 		"vitest": "^4.1.10"
 	},
 	"repository": {
@@ -30,7 +31,7 @@
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "2.4.13",
-    	"vitest": "^4.1.7",
-		"http-server": "^14.1.1"
+		"http-server": "^14.1.1",
+		"vitest": "^4.1.7"
 	}
 }

@@ -326,7 +326,7 @@
   joinDuplicateHeaders: null,
   aborted: false,
   upgrade: false,
-  url: '/user1',
+  url: '/user1@email.com',
   method: 'PUT',
   statusCode: null,
   statusMessage: null,
@@ -600,7 +600,7 @@
   _dumped: false,
   next: [Function: next],
   baseUrl: '/users',
-  originalUrl: '/users/user1',
+  originalUrl: '/users/user1@email.com',
   _parsedUrl: Url {
     protocol: null,
     slashes: null,
@@ -611,12 +611,12 @@
     hash: null,
     search: null,
     query: null,
-    pathname: '/user1',
-    path: '/user1',
-    href: '/user1',
-    _raw: '/user1'
+    pathname: '/user1@email.com',
+    path: '/user1@email.com',
+    href: '/user1@email.com',
+    _raw: '/user1@email.com'
   },
-  params: { name: 'user1' },
+  params: { name: 'user1@email.com' },
   query: {},
   res: <ref *3> ServerResponse {
     _events: [Object: null prototype] { finish: [Function: bound resOnFinish] },
@@ -723,7 +723,7 @@
     Symbol(kRejectNonStandardBodyWrites): false,
     Symbol(kUniqueHeaders): null
   },
-  body: { name: 'user1', unhashed_pw: 'some-unhashed-password-here' },
+  body: { name: 'user1@email.com', unhashed_pw: 'some-unhashed-password-here' },
   _body: true,
   length: undefined,
   _eventsCount: 0,

@@ -144,10 +144,10 @@ describe("Testing Suite for semester project server", () => {
         });
     });
     describe("Testing Authentication Routes and Methods", () => {
-        test("Test user1 auth", async () => {
+        test("Test user1@email.com auth", async () => {
             const result = await postJson("/auth/login", {
-                "username": "user1",
-                "password": "user1-password"
+                "username": "user1@email.com",
+                "password": "user1@email.com-password"
             });
 
             expect(result.status).toBe(200);
@@ -164,8 +164,8 @@ describe("Testing Suite for semester project server", () => {
         });
         test("Make sure incorrect creds return a 401 error", async () => {
             const result = await postJson("/auth/login", {
-                "username": "user1231",
-                "password": "user1-qweqweqweqweqwepassword"
+                "username": "user1@email.com231",
+                "password": "user1@email.com-qweqweqweqweqwepassword"
             });
 
             expect(result.status).toBe(401);
@@ -174,14 +174,14 @@ describe("Testing Suite for semester project server", () => {
                 "message": "Invalid username or password."
             });
         });
-        test("Test GET /auth/me for user1", async () => {
+        test("Test GET /auth/me for user1@email.com", async () => {
             token = userToken;
             const result = await getJson("/auth/me");
 
             expect(result.status).toBe(200);
             
         });
-        test("Test GET /auth/me for user1 with no auth header", async () => {
+        test("Test GET /auth/me for user1@email.com with no auth header", async () => {
             token = userToken;
             const result = await getJsonNoHeader("/auth/me");
 
@@ -194,7 +194,7 @@ describe("Testing Suite for semester project server", () => {
         });
     });
     describe("Testing Task Routes and Methods", () => {
-        test("Test user1 accessing only task he has read access to the projects of", async () => {
+        test("Test user1@email.com accessing only task he has read access to the projects of", async () => {
             const result = await getJson("/tasks");
 
             expect(result.status).toBe(200);
@@ -205,7 +205,7 @@ describe("Testing Suite for semester project server", () => {
                     "title": "third task",
                     "description": "this is the third task.",
                     "status": "not started",
-                    "assigned_to": "user1",
+                    "assigned_to": "user1@email.com",
                     "parent_project": "first_project"
                     },
                     {
@@ -229,7 +229,7 @@ describe("Testing Suite for semester project server", () => {
                     "title": "fourth_task",
                     "description": "this is the fourth task.",
                     "status": "in progress",
-                    "assigned_to": "user1",
+                    "assigned_to": "user1@email.com",
                     "parent_project": "second_project"
                     }
                 ]
@@ -248,7 +248,7 @@ describe("Testing Suite for semester project server", () => {
                     "title": "third task",
                     "description": "this is the third task.",
                     "status": "not started",
-                    "assigned_to": "user1",
+                    "assigned_to": "user1@email.com",
                     "parent_project": "first_project"
                     },
                     {
@@ -272,7 +272,7 @@ describe("Testing Suite for semester project server", () => {
                     "title": "fourth_task",
                     "description": "this is the fourth task.",
                     "status": "in progress",
-                    "assigned_to": "user1",
+                    "assigned_to": "user1@email.com",
                     "parent_project": "second_project"
                     },
                     {
@@ -332,7 +332,7 @@ describe("Testing Suite for semester project server", () => {
                     "title": "third task",
                     "description": "this is the third task.",
                     "status": "not started",
-                    "assigned_to": "user1",
+                    "assigned_to": "user1@email.com",
                     "parent_project": "first_project",
                     }
                 ]
@@ -414,7 +414,7 @@ describe("Testing Suite for semester project server", () => {
 
     });
     describe("Testing User Routes and Methods", () => {
-        test("Test user1 attempting to list all users with GET /users", async () => {
+        test("Test user1@email.com attempting to list all users with GET /users", async () => {
             token = userToken;
             const result = await getJson("/users");
 
@@ -435,11 +435,11 @@ describe("Testing Suite for semester project server", () => {
                     "role": "admin"
                     },
                     {
-                    "user_name": "user1",
+                    "user_name": "user1@email.com",
                     "role": "user"
                     },
                     {
-                    "user_name": "user2",
+                    "user_name": "user2@email.com",
                     "role": "user"
                     }
                 ]
@@ -448,20 +448,20 @@ describe("Testing Suite for semester project server", () => {
         test("Test creating a user", async () => {
             token = userToken;
             const result = await postJsonNoHeader("/users", {
-                "name": "postuser",
+                "name": "postuser@email.com",
                 "unhashed_pw": "some-unhashed-password-here"
             });
         
             expect(result.status).toBe(201);
             expect(result.body).toMatchObject({
                 "users": {
-                    "user_name": "postuser"
+                    "user_name": "postuser@email.com"
                 }
             });
         }); 
         test("Login with created user", async () => {
             const result = await postJson("/auth/login", {
-                "username": "postuser",
+                "username": "postuser@email.com",
                 "password": "some-unhashed-password-here"
             });
 
@@ -477,13 +477,13 @@ describe("Testing Suite for semester project server", () => {
         });
         test("Request own user by username", async () => {
             token = userToken;
-            const result = await getJson("/users/user1");
+            const result = await getJson("/users/user1@email.com");
 
             expect(result.status).toBe(200);
             expect(result.body).toMatchObject({
                 "users": [
                     {
-                    "user_name": "user1",
+                    "user_name": "user1@email.com",
                     "role": "user"
                     }
                 ]
@@ -500,58 +500,58 @@ describe("Testing Suite for semester project server", () => {
         });
         test("PATCH user to update password", async () => {
             token = userToken;
-            const result = await patchJson("/users/user1", {
+            const result = await patchJson("/users/user1@email.com", {
                 "unhashed_pw": "test"
             });
 
             expect(result.status).toBe(201);
             expect(result.body).toMatchObject({
-                "Result": "password of user user1 updated"
+                "Result": "password of user user1@email.com updated"
             });
             });
 
         test("PATCH user to update password and role with admin account", async () => {
             token = adminToken;
-            const result = await patchJson("/users/user1", {
+            const result = await patchJson("/users/user1@email.com", {
                 "unhashed_pw": "test2",
                 "role": "admin"
             });
 
             expect(result.status).toBe(201);
         });
-        test("Verify user1 is now an admin", async () => {
+        test("Verify user1@email.com is now an admin", async () => {
             token = userToken;
-            const result = await getJson("/users/user1");
+            const result = await getJson("/users/user1@email.com");
 
             expect(result.status).toBe(200);
             expect(result.body).toMatchObject({
                 "users": [
                     {
-                    "user_name": "user1",
+                    "user_name": "user1@email.com",
                     "role": "admin"
                     }
                 ]
             });
         });
-        test("PATCH user1 back to a normal user", async () => {
+        test("PATCH user1@email.com back to a normal user", async () => {
             token = adminToken;
-            const result = await patchJson("/users/user1", {
+            const result = await patchJson("/users/user1@email.com", {
                 "unhashed_pw": "test2",
                 "role": "user"
             });
 
             expect(result.status).toBe(201);
         });
-        test("DELETE postuser's own user by username", async () => {
+        test("DELETE postuser@email.com's own user by username", async () => {
             token = createdUserToken;
-            const result = await deleteJson("/users/postuser");
+            const result = await deleteJson("/users/postuser@email.com");
 
             expect(result.status).toBe(204);
             });
 
         test("Fail to DELETE user that is not own user", async () => {
             token = userToken;
-            const result = await deleteJson("/users/user2");
+            const result = await deleteJson("/users/user2@email.com");
 
             expect(result.status).toBe(403);
             expect(result.body).toMatchObject({
@@ -569,17 +569,17 @@ describe("Testing Suite for semester project server", () => {
                 "projects": [
                     {
                     "project_name": "first_project",
-                    "owner": "user1",
+                    "owner": "user1@email.com",
                     "description": null
                     },
                     {
                     "project_name": "second_project",
-                    "owner": "user1",
+                    "owner": "user1@email.com",
                     "description": null
                     },
                     {
                     "project_name": "third_project",
-                    "owner": "user2",
+                    "owner": "user2@email.com",
                     "description": null
                     }
                 ]
@@ -595,7 +595,7 @@ describe("Testing Suite for semester project server", () => {
             expect(result.body).toMatchObject({
             "projects": {
                 "project_name": "exampleProject",
-                "owner": "user1",
+                "owner": "user1@email.com",
                 "description": null,
                 }
             });
@@ -609,7 +609,7 @@ describe("Testing Suite for semester project server", () => {
                 "projects": [
                     {
                     "project_name": "first_project",
-                    "owner": "user1",
+                    "owner": "user1@email.com",
                     "description": null,
                     }
                 ]

@@ -32,13 +32,13 @@ export async function initializeDatabase() {
 
   if (rows[0].count === 0) {
 
-    const passwordHash = await bcrypt.hash("user1-password", 10);
-    const passwordHash2 = await bcrypt.hash("user2-password", 10);
+    const passwordHash = await bcrypt.hash("user1@email.com-password", 10);
+    const passwordHash2 = await bcrypt.hash("user2@email.com-password", 10);
     const adminPasswordHash = await bcrypt.hash("admin-password", 10);
 	  console.log("filling user table");
     await pool.query(
       "INSERT INTO users (user_name, password_hash, role) VALUES ($1, $2, $3), ($4, $5, $6), ($7, $8, $9)",
-      ["user1", passwordHash, "user", "admin", adminPasswordHash, 'admin', "user2", passwordHash2, "user"]
+      ["user1@email.com", passwordHash, "user", "admin", adminPasswordHash, 'admin', "user2@email.com", passwordHash2, "user"]
     );
 
   }
@@ -62,13 +62,13 @@ export async function initializeDatabase() {
     await pool.query(
       `
     INSERT INTO PROJECTS (project_name, owner) VALUES 
-    ('first_project', 'user1') 
+    ('first_project', 'user1@email.com') 
     RETURNING project_name, created_at, updated_at;
     INSERT INTO PROJECTS (project_name, owner) VALUES 
-    ('second_project', 'user1') 
+    ('second_project', 'user1@email.com') 
     RETURNING project_name, created_at, updated_at;
     INSERT INTO PROJECTS (project_name, owner) VALUES 
-    ('third_project', 'user2') 
+    ('third_project', 'user2@email.com') 
     RETURNING project_name, created_at, updated_at;
     `,
     );
@@ -95,10 +95,10 @@ export async function initializeDatabase() {
       `
     INSERT INTO project_members (project_name, user_name)
     VALUES
-        ('first_project', 'user1'),
-        ('second_project', 'user1'),
-        ('second_project', 'user2'),
-        ('third_project', 'user2')
+        ('first_project', 'user1@email.com'),
+        ('second_project', 'user1@email.com'),
+        ('second_project', 'user2@email.com'),
+        ('third_project', 'user2@email.com')
     `
     );
   }
@@ -126,10 +126,10 @@ export async function initializeDatabase() {
 	console.log("filling task table");
     await pool.query(
       `
-		INSERT INTO TASKS (title, description, status, assigned_to, parent_project) VALUES ('third task', 'this is the third task.', 'not started', 'user1', 'first_project') RETURNING *;
+		INSERT INTO TASKS (title, description, status, assigned_to, parent_project) VALUES ('third task', 'this is the third task.', 'not started', 'user1@email.com', 'first_project') RETURNING *;
 		INSERT INTO TASKS (title, description, status, parent_project) VALUES ('second task', 'this is the second task.', 'done', 'first_project') RETURNING *;
 		INSERT INTO TASKS (title, description, status, parent_project) VALUES ('first_task', 'this is the first task.', 'in progress', 'second_project') RETURNING *;
-    INSERT INTO TASKS (title, description, status, assigned_to, parent_project) VALUES ('fourth_task', 'this is the fourth task.', 'in progress', 'user1', 'second_project') RETURNING *;
+    INSERT INTO TASKS (title, description, status, assigned_to, parent_project) VALUES ('fourth_task', 'this is the fourth task.', 'in progress', 'user1@email.com', 'second_project') RETURNING *;
     INSERT INTO TASKS (title, description, status, parent_project) VALUES ('fifth_task', 'this is the fifth task.', 'testing',  'third_project') RETURNING *;
 
       `,

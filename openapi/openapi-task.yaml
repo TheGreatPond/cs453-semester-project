@@ -293,7 +293,7 @@ components:
       properties:
         username:
           type: string
-          example: "user1"
+          example: "user1@email.com"
         password:
           type: string
           example: "user-password"

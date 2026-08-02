@@ -5,7 +5,7 @@ import {pool} from "../db/pool.ts";
 import { getTaskParentProject } from "../services/getTaskParentProject.js";
 import { getProjectOwner } from "../services/getProjectOwner.js";
 import bcrypt from "bcryptjs";
-
+import validator from "validator";
 
 const router = Router();
 
@@ -35,6 +35,12 @@ router.post("/", async (req, res) => {
     const name = req.body?.name?.trim();
     const unhashed_pw = req.body?.unhashed_pw?.trim();
     const passwordHash = await bcrypt.hash(unhashed_pw, 10);
+
+    if (!validator.isEmail(name)) {
+        return res.status(400).json({
+            error: "username must be an email address"
+        });
+    }
 
     try {
       const result = await pool.query(`
