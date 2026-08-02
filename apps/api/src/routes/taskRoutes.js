@@ -59,7 +59,7 @@ router.post("/", authenticateToken, async (req, res) => {
           });
         }
       } else {
-          res.status(401).json({ error: "Unauthorized: User cannot create new task in a project they are not the owner of" });
+          res.status(403).json({ error: "Forbidden: User cannot create new task in a project they are not the owner of" });
       }
     } else {
         res.status(400).json({ error: "Malformed json, please try again with title, description, project_name, and status" });
@@ -93,7 +93,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
         });
         }
     } else {
-          res.status(401).json({ error: "Unauthorized: User is not authorized to get the task requested since it belongs to a project they are not a member of" });
+          res.status(403).json({ error: "Forbidden: User is not authorized to get the task requested since it belongs to a project they are not a member of" });
     }
   });
 
@@ -144,9 +144,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else if (!user_projects.includes(new_parent_project))  {
-          res.status(401).json({ error: "Unauthorized: User is not authorized to place the task requested in a project the user is not the owner of" });
+          res.status(403).json({ error: "Forbidden: User is not authorized to place the task requested in a project the user is not the owner of" });
     } else {
-          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested since it belongs to a project they are not the owner of" });
+          res.status(403).json({ error: "Forbidden: User is not authorized to modify the task requested since it belongs to a project they are not the owner of" });
     }
   });
 
@@ -203,7 +203,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
             if (req.body.hasOwnProperty('parent_project')){
               const new_parent_project = req.body.parent_project;
               if (!user_projects.includes(new_parent_project))  {
-                    res.status(401).json({ error: "Unauthorized: Parent Project update failed. User is not authorized to place the task requested in a project the user is not a member of" });
+                    res.status(403).json({ error: "Forbidden: Parent Project update failed. User is not authorized to place the task requested in a project the user is not a member of" });
               } else {
                   const result =  await pool.query(
                   `
@@ -244,7 +244,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else {
-          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested they are not the owner of the project the task belongs to." });
+          res.status(403).json({ error: "Forbidden: User is not authorized to modify the task requested they are not the owner of the project the task belongs to." });
     }
   });
 // TODO: stop users from deleting task outside of projects they are members of
@@ -287,7 +287,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
         });
       }
     } else {
-          res.status(401).json({ error: "Unauthorized: User is not authorized to modify the task requested they are not the owner of the project the task belongs to."});
+          res.status(403).json({ error: "Forbidden: User is not authorized to modify the task requested they are not the owner of the project the task belongs to."});
     }
   });
 

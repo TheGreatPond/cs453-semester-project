@@ -27,7 +27,7 @@ router.get("/", authenticateToken, async (req, res) => {
         });
         }
     } else {
-        res.status(401).json({ error: "Unauthorized: Only users with the role admin are permitted to list other users" });
+        res.status(403).json({ error: "Forbidden: Only users with the role admin are permitted to list other users" });
     }
   });
 
@@ -104,7 +104,7 @@ router.get("/:name", authenticateToken, async (req, res) => {
         });
         }
     } else {
-        res.status(401).json({ error: "Unauthorized: Only users with the role admin are permitted to list other users" });
+        res.status(403).json({ error: "Forbidden: Only users with the role admin are permitted to list other users" });
     }
   });
 
@@ -195,7 +195,7 @@ router.patch("/:name", authenticateToken, async (req, res) => {
     });
     }
     } else {
-      res.status(401).json({ error: "Unauthorized: Users are only allowed to edit their own password. Admins can edit the password or role of all users." });
+      res.status(403).json({ error: "Forbidden: Users are only allowed to edit their own password. Admins can edit the password or role of all users." });
     }
   });
 
@@ -236,7 +236,7 @@ router.delete("/:name", authenticateToken, async (req, res) => {
       });
     }
   } else {
-      res.status(401).json({ error: "Unauthorized: Users with the \"user\" role are only allowed to delete themselves. Users with the \"admin\" role can delete any user besides the user \"admin\"" });
+      res.status(403).json({ error: "Forbidden: Users with the \"user\" role are only allowed to delete themselves. Users with the \"admin\" role can delete any user besides the user \"admin\"" });
     }
 });
 

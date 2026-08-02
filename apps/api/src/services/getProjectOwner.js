@@ -11,7 +11,7 @@ export async function getProjectOwner(id) {
         `,
         [id]);
         if (result.rows.length === 0){
-            res.status(404).json({ error: "Resource requested not found" });
+            return null
         } else{
             const data = JSON.parse(JSON.stringify(result.rows));
             const values = data.map(item => item.owner);
@@ -19,9 +19,6 @@ export async function getProjectOwner(id) {
         }
     } catch (error) {
         console.error("Failed to load items:", error);
-        res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load items."
-      });
+        return null
     }
 }
