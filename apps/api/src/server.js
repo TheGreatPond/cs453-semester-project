@@ -2,11 +2,12 @@ import express from "express";
 import cors from "cors";
 import {initializeDatabase} from "./db/pool.ts";
 import {createApp} from "./app2.js";
+import { env } from "../src/config/env.ts"
 
 
 
 const isMainModule = process.argv[1] === new URL(import.meta.url).pathname;
-export const PORT = process.env.PORT || 3000;
+export const PORT = env.port;
 
 if (isMainModule) {
   const app = createApp();

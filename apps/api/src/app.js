@@ -3,9 +3,10 @@ import cors from "cors";
 import {pool} from "./db/pool.ts";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.ts";
 
 
-const jwtSecret = process.env.JWT_SECRET ?? "development-only-change-me";
+const jwtSecret = env.JWT_SECRET;
 const jwtExpiresIn = "1h";
 
 

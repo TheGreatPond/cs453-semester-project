@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.ts";
 
-
-export const jwtSecret = process.env.JWT_SECRET ?? "development-only-change-me";
+export const jwtSecret = env.JWT_SECRET;
 export const jwtExpiresIn = "1h";
 
 export function authenticateToken(req, res, next) {
