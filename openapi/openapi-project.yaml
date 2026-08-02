@@ -113,95 +113,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
-    # put:
-    #   summary: Update one project in list
-    #   parameters:
-    #     - in: path
-    #       name: name
-    #       schema:
-    #         type: string
-    #       required: true
-    #       description: name of the project to update
-    #   requestBody:
-    #     description: "needs name of project"
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: "#/components/schemas/ProjectInput"
-    #   responses:
-    #     "200":
-    #       description: Single project returned
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/Project"
-    #     "404":
-    #       description: "Resource requested not found and could not be altered"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorNotFound"
-    #     "400":
-    #       description: "Invalid request, User not updated"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorInvalidBody"
-    # patch:
-    #   summary: Update part of one Project in list
-    #   parameters:
-    #     - in: path
-    #       name: name
-    #       schema:
-    #         type: string
-    #       required: true
-    #       description: name of the Project to update
-    #   requestBody:
-    #     description: "needs a combination of any of the following: project_name"
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: "#/components/schemas/ProjectInput"
-
-    #   responses:
-    #     "200":
-    #       description: Single Project returned
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/Project"
-    #     "404":
-    #       description: "Resource requested not found and could not be altered"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorNotFound"
-    #     "400":
-    #       description: "Invalid request, User not updated"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: "#/components/schemas/ErrorInvalidBody"
-    delete:
-      summary: Delete Project from db
-      parameters:
-        - in: path
-          name: name
-          schema:
-            type: string
-          required: true
-          description: name of the Project to delete
-      responses:
-        "204":
-          description: "Null response"
-        "404":
-          description: "Resource requested not found and therefore not deleted"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorNotFound"
 
 
   #
@@ -270,10 +181,10 @@ components:
       properties:
         username:
           type: string
-          example: "user"
+          example: "user1"
         password:
           type: string
-          example: "user-password"
+          example: "user1-password"
     Username:
       type: object
       required:

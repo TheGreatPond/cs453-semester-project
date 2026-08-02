@@ -570,186 +570,59 @@ describe("Testing Suite for semester project server", () => {
                     {
                     "project_name": "first_project",
                     "owner": "user1",
-                    "description": null,
-                    "created_at": "2026-08-03T02:10:51.705Z",
-                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    "description": null
                     },
                     {
                     "project_name": "second_project",
                     "owner": "user1",
-                    "description": null,
-                    "created_at": "2026-08-03T02:10:51.705Z",
-                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    "description": null
                     },
                     {
                     "project_name": "third_project",
                     "owner": "user2",
-                    "description": null,
-                    "created_at": "2026-08-03T02:10:51.705Z",
-                    "updated_at": "2026-08-03T02:10:51.705Z"
+                    "description": null
                     }
                 ]
             });
         });
+        test("Test POST /projects", async () => {
+            token = userToken;
+            const result = await postJson("/projects", {
+                "name": "exampleProject"
+            });
+
+            expect(result.status).toBe(201);
+            expect(result.body).toMatchObject({
+            "projects": {
+                "project_name": "exampleProject",
+                "owner": "user1",
+                "description": null,
+                }
+            });
+        });
+        test("Get project that user has access to by name", async () => {
+            token = userToken;
+            const result = await getJson("/projects/first_project");
+
+            expect(result.status).toBe(200);
+            expect(result.body).toMatchObject({
+                "projects": [
+                    {
+                    "project_name": "first_project",
+                    "owner": "user1",
+                    "description": null,
+                    }
+                ]
+            });
+        });
+        test("Fail to GET task that user does not have access to by id", async () => {
+            token = userToken;
+            const result = await getJson("/projects/third_project");
+
+            expect(result.status).toBe(403);
+            expect(result.body).toMatchObject({
+                "Forbidden": "Users may not retrieve information about a project they do not own and are not a member of"
+            });
+        });
     });
 });
-    /*
-
-    test("unknown route returns 404", async () => {
-        const result = await getJson("/missing");
-
-        expect(result.status).toBe(404);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("POST /echo returns the submitted JSON body", async () => {
-        const result = await postJson("/echo", {
-            message: "hello"
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            message: "hello"
-        });
-    });
-
-    test("POST /echo rejects invalid JSON", async () => {
-        const result = await postRaw("/echo", "{ bad json");
-
-        expect(result.status).toBe(400);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("POST /uppercase returns the submitted JSON body", async () => {
-        const result = await postJson("/uppercase", {
-            message: "hello"
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            message: "HELLO"
-        });
-    });
-
-
-    test("POST /calculate can add two numbers", async () => {
-        const result = await postJson("/calculate", {
-            operation: "add",
-            a: 2,
-            b: 3
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            result: 5
-        });
-    });
-
-    test("POST /calculate can subtract two numbers", async () => {
-        const result = await postJson("/calculate", {
-            operation: "subtract",
-            a: 10,
-            b: 4
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            result: 6
-        });
-    });
-
-    test("POST /calculate can multiply two numbers", async () => {
-        const result = await postJson("/calculate", {
-            operation: "multiply",
-            a: 6,
-            b: 7
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            result: 42
-        });
-    });
-
-    test("POST /calculate can divide two numbers", async () => {
-        const result = await postJson("/calculate", {
-            operation: "divide",
-            a: 20,
-            b: 5
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            result: 4
-        });
-    });
-
-    test("POST /calculate can use the modulo operation", async () => {
-        const result = await postJson("/calculate", {
-            operation: "modulo",
-            a: 26,
-            b: 5
-        });
-
-        expect(result.status).toBe(200);
-        expect(result.body).toEqual({
-            result: 1
-        });
-    });
-
-    test("POST /calculate rejects division by zero", async () => {
-        const result = await postJson("/calculate", {
-            operation: "divide",
-            a: 20,
-            b: 0
-        });
-
-        expect(result.status).toBe(400);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("POST /calculate rejects unsupported operations", async () => {
-        const result = await postJson("/calculate", {
-            operation: "power",
-            a: 2,
-            b: 3
-        });
-
-        expect(result.status).toBe(400);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("POST /calculate rejects missing fields", async () => {
-        const result = await postJson("/calculate", {
-            operation: "add",
-            a: 2
-        });
-
-        expect(result.status).toBe(400);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("POST /calculate rejects non-number values", async () => {
-        const result = await postJson("/calculate", {
-            operation: "add",
-            a: "two",
-            b: 3
-        });
-
-        expect(result.status).toBe(400);
-        expect(result.body).toHaveProperty("error");
-    });
-
-    test("GET /requests returns a request count", async () => {
-        await getJson("/health");
-        const result = await getJson("/requests");
-
-        expect(result.status).toBe(200);
-        expect(result.body).toHaveProperty("totalRequests");
-        expect(typeof result.body.totalRequests).toBe("number");
-        expect(result.body.totalRequests).toBeGreaterThanOrEqual(2);
-    });
-
-    */
-
-

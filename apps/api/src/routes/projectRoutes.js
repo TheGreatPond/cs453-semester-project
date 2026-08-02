@@ -64,11 +64,11 @@ router.post("/", authenticateToken, async (req, res) => {
           try {
             const result = await pool.query(
               `
-                INSERT INTO projects (project_name)
-                VALUES ($1)
+                INSERT INTO projects (project_name, owner)
+                VALUES ($1, $2)
                 RETURNING *
               `,
-              [name]
+              [name, req.user.username]
             );
 
             res.status(201).json({ projects: result.rows[0] });
@@ -99,24 +99,29 @@ router.post("/", authenticateToken, async (req, res) => {
   // DONE: Return one user by ID.
 router.get("/:name", authenticateToken, async (req, res) => {
     const name = req.params.name;
-    try {
-      const result = await pool.query(`
-        SELECT *
-        FROM projects
-        WHERE PROJECT_NAME = $1
-      `,
-      [name]);
-      if (result.rows.length === 0){
-        res.status(404).json({ error: "Resource requested not found" });
-      } else{
-        res.json({ projects: result.rows });
-      }
-    } catch (error) {
-      console.error("Failed to load projects:", error);
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Failed to load projects."
-      });
+    const user_projects =  await getUserProjects(req, res);
+    if(user_projects.includes(name)) {
+        try {
+        const result = await pool.query(`
+            SELECT *
+            FROM projects
+            WHERE PROJECT_NAME = $1
+        `,
+        [name]);
+        if (result.rows.length === 0){
+            res.status(404).json({ error: "Resource requested not found" });
+        } else{
+            res.json({ projects: result.rows });
+        }
+        } catch (error) {
+        console.error("Failed to load projects:", error);
+        res.status(500).json({
+            error: "Internal Server Error",
+            message: "Failed to load projects."
+        });
+        }
+    } else {
+        res.status(403).json({ Forbidden: "Users may not retrieve information about a project they do not own and are not a member of" });
     }
   });
 
