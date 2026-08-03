@@ -118,6 +118,16 @@ curl -X 'POST' \
 
 This will return either an error if your credentials are wrong or a JWT that you will need to use for protected routes
 
+Default admin account is 
+username: admin
+password: admin-password
+
+default first user is 
+username: user1
+password: user1-password
+
+both of these accounts are setup in apps/api/src/db/pool.ts when the database is first setup on first server start
+
 ### How to send a JWT with a request.
 
 To send a JWT with a request, include "-H 'Authorization: Bearer <YOUR_JWT_TOKEN>'" as part of your curl command to send the necessary authorization header
