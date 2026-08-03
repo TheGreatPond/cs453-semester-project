@@ -113,6 +113,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
+  /projects/members:
+    get: 
+      summary: "Get list of project members"
+      responses:        
+        "200":
+          description: "list of users returned"
+    post:
+      summary: "Adds new user to a project"
+      requestBody:
+        description: "needs a username and project"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectAndUser"
+      responses:
+        "200":
+          description: Single project and user returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectAndUser"
+        "404":
+          description: "Resource requested not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    delete:
+      summary: "Remove user from project"
+      requestBody:
+        description: "needs a username and project"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectAndUser"
+      responses:
+        "204":
+          description: SCode 204 returned for successful deletion
+        "404":
+          description: "Resource requested not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
 
 
   #
@@ -152,14 +198,19 @@ components:
         name:
           type: string
           example: "exampleProject"
+
     ProjectAndUser:
       type: object
       required:
         - project_name
+        - user_name
       properties:
         project_name:
           type: string
-          example: "exampleProject"
+          example: "first_project"
+        user_name:
+          type: string
+          example: "user2@email.com"
   # DONE: Define an ErrorResponse schema with an error message.
     ErrorNotFound:
       type: object

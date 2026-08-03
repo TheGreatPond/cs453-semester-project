@@ -15,7 +15,6 @@ export async function getUserProjects(req, res) {
       // Extract only the values
       const values = data.map(item => item.project_name);
 
-      console.log(`User ${req.user.username} is an admin and has rights to projects ` + values); 
       return values;
     } catch (error) {
       console.error("Failed to load items:", error);
@@ -48,8 +47,6 @@ export async function getUserProjects(req, res) {
       // Extract only the values
       const ownedProjects = data2.map(item => item.project_name);
 
-
-      console.log(`User ${req.user.username} has read access to projects ` + values + " and owns projects "); 
       return values;
     } catch (error) {
       console.error("Failed to load items:", error);

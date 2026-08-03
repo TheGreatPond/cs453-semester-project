@@ -38,7 +38,6 @@ async function deleteJson(path) {
         };
     } else {
         const body = await response.json();
-        console.log(response);
         return {
             status: response.status,
             body

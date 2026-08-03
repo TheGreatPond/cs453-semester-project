@@ -119,7 +119,6 @@ router.patch("/:name", authenticateToken, async (req, res) => {
     const name = req.body?.name?.trim();
     const old_name = req.params.name;
     const role = req.user.role
-    const password_hash = await bcrypt.hash(req.body?.unhashed_pw?.trim(), 10);
     if (role == "admin" || req.user.username == old_name) {
         try {
         const result = await pool.query(`
@@ -132,6 +131,8 @@ router.patch("/:name", authenticateToken, async (req, res) => {
             res.status(404).json({ error: "Resource requested not found" });
         } else{
             if (req.body.hasOwnProperty('unhashed_pw') && Object.keys(req.body).length == 1){
+              
+              const password_hash = await bcrypt.hash(req.body?.unhashed_pw?.trim(), 10);
                 try {
                     const result =  await pool.query(
                     `
@@ -150,6 +151,7 @@ router.patch("/:name", authenticateToken, async (req, res) => {
                     });
                 }
             } else if (req.body.hasOwnProperty('unhashed_pw') &&  req.body.hasOwnProperty('role') && Object.keys(req.body).length == 2 && role == "admin") {
+                const password_hash = await bcrypt.hash(req.body?.unhashed_pw?.trim(), 10);
                 const role = req.body?.role?.trim();
                 try {
                     const result =  await pool.query(
@@ -175,10 +177,10 @@ router.patch("/:name", authenticateToken, async (req, res) => {
                     const result =  await pool.query(
                     `
                     UPDATE users
-                    SET user_name = $1, updated_at = current_timestamp, password_hash = $3, role = $4
-                    WHERE user_name = $2
+                    SET updated_at = current_timestamp, role = $2
+                    WHERE user_name = $1
                     `,
-                    [name, old_name, password_hash, role]
+                    [old_name, role]
                     );
 
                     res.status(201).json({ User: result.rows[0] });

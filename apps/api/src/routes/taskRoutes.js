@@ -35,9 +35,6 @@ router.post("/", authenticateToken, async (req, res) => {
     const status = req.body?.status
     const parent_project = req.body?.parent_project
 
-    console.log(req.user.username);
-    console.log(await getProjectOwner(parent_project));
-
     if ((req.body.hasOwnProperty('title') && req.body.hasOwnProperty('description')) && req.body.hasOwnProperty('status') && req.body.hasOwnProperty('parent_project') && Object.keys(req.body).length === 4){
       if (req.user.username == (await getProjectOwner(parent_project)) || req.user.role == "admin") {
         try {
